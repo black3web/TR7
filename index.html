@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <!-- منع التكبير التلقائي على الجوال والكمبيوتر -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> أذكار </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* إزالة المربع الأزرق */
+        }
+
+        :root {
+            --neon-red: #ff073a;
+            --neon-gold: #ffd700;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(10, 10, 10, 0.25);
+            --glass-border: rgba(255, 7, 58, 0.4);
+            --text-light: #f0f0f0;
+            --shadow-neon: 0 0 12px rgba(255, 7, 58, 0.3), 0 0 25px rgba(255, 215, 0, 0.2);
+            --border-neon: 1px solid rgba(255, 7, 58, 0.4);
+            --transition: all 0.2s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ===== خلفية متحركة ===== */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            opacity: 0.7;
+        }
+
+        .shape {
+            position: absolute;
+            filter: blur(2px) drop-shadow(0 0 5px rgba(255, 7, 58, 0.3));
+            opacity: 0.4;
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 120px; height: 120px;
+            border: 2px solid var(--neon-red);
+            border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+            top: 5%; left: 3%;
+            box-shadow: 0 0 15px var(--neon-red), inset 0 0 10px var(--neon-red);
+            animation: morph 18s infinite alternate;
+        }
+
+        .shape-2 {
+            width: 160px; height: 160px;
+            border: 2px solid var(--neon-gold);
+            border-radius: 50%;
+            bottom: 10%; right: 5%;
+            box-shadow: 0 0 20px var(--neon-gold), inset 0 0 15px var(--neon-gold);
+            animation: pulseGlow 6s infinite alternate, spin 30s linear infinite;
+        }
+
+        .shape-3 {
+            width: 0; height: 0;
+            border-left: 70px solid transparent;
+            border-right: 70px solid transparent;
+            border-bottom: 120px solid rgba(255, 7, 58, 0.2);
+            top: 70%; left: 10%;
+            filter: drop-shadow(0 0 8px var(--neon-red));
+            animation: moveTriangle 20s infinite alternate;
+        }
+
+        .shape-4 {
+            width: 200px; height: 200px;
+            background: repeating-linear-gradient(45deg, var(--neon-red) 0px, var(--neon-red) 3px, transparent 3px, transparent 15px);
+            top: 30%; right: -30px;
+            opacity: 0.2;
+            transform: rotate(45deg);
+            animation: rotateGradient 30s linear infinite;
+        }
+
+        .shape-5 {
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, var(--neon-gold) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 80%; left: 80%;
+            filter: blur(5px);
+            animation: moveStar 15s infinite alternate;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--neon-gold);
+            animation: twinkle 4s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1); }
+        }
+        @keyframes float { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
+        @keyframes morph { 0% { border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%; } 100% { border-radius: 60% 40% 40% 60% / 60% 60% 40% 40%; } }
+        @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 15px var(--neon-gold), inset 0 0 8px var(--neon-gold); } 100% { box-shadow: 0 0 35px var(--neon-red), inset 0 0 15px var(--neon-red); } }
+        @keyframes moveTriangle { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(30px, -30px) rotate(10deg); } }
+        @keyframes rotateGradient { from { transform: rotate(45deg); } to { transform: rotate(405deg); } }
+        @keyframes moveStar { 0% { transform: translateX(0) scale(1); } 100% { transform: translateX(-80px) scale(1.5); } }
+
+        /* ===== الهيدر (بدون سهم) ===== */
+        .header {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* توسيط العنوان */
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: var(--border-neon);
+            box-shadow: var(--shadow-neon);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--neon-gold);
+            text-shadow: 0 0 6px var(--neon-red);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .social-icons {
+            position: absolute;
+            left: 16px; /* بدلاً من اليمين لأن dir=RTL */
+            display: flex;
+            gap: 12px;
+        }
+        .social-icons a {
+            color: var(--neon-gold);
+            font-size: 20px;
+            transition: var(--transition);
+            text-shadow: 0 0 5px var(--neon-red);
+        }
+        .social-icons a:active { transform: scale(0.9); }
+
+        /* ===== المحتوى الرئيسي ===== */
+        .main-content {
+            position: relative;
+            z-index: 15;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 16px 120px;
+            max-width: 700px; /* زيادة للكمبيوتر */
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ===== أيقونة البداية ===== */
+        .welcome-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .app-icon {
+            width: 120px; height: 120px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 1px solid var(--neon-gold);
+            box-shadow: 0 0 18px var(--neon-red), inset 0 0 8px rgba(255,215,0,0.3);
+            transition: var(--transition);
+        }
+        .app-icon i {
+            font-size: 65px;
+            color: var(--neon-gold);
+            text-shadow: 0 0 12px var(--neon-red);
+        }
+        .app-icon:active { transform: scale(0.95); }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .app-title span { color: var(--neon-gold); }
+
+        /* ===== شريط البحث ===== */
+        .search-section {
+            margin: 12px 0 20px;
+        }
+        .search-bar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: var(--border-neon);
+            border-radius: 50px;
+            padding: 4px 4px 4px 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow-neon);
+        }
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 8px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.5); }
+        .btn-search {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: var(--neon-red);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 12px var(--neon-gold);
+            transition: var(--transition);
+        }
+        .btn-search:active { transform: scale(0.9); background: var(--neon-gold); color: black; }
+
+        /* ===== نتائج البحث ===== */
+        .results-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 4px 0 15px;
+            max-height: 45vh;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-red) transparent;
+        }
+        .results-container::-webkit-scrollbar { width: 5px; }
+        .results-container::-webkit-scrollbar-thumb { background: var(--neon-red); border-radius: 10px; }
+
+        .track-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 7, 58, 0.3);
+            border-radius: 30px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+            transition: var(--transition);
+        }
+        .track-item:active { transform: scale(0.99); border-color: var(--neon-gold); }
+
+        .track-thumb {
+            width: 60px; height: 60px;
+            border-radius: 20px;
+            background: #1a1a1a;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 1px solid var(--neon-gold);
+            box-shadow: 0 0 8px var(--neon-red);
+        }
+        .track-thumb img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .track-thumb .default-thumb {
+            width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e1e1e;
+            color: var(--neon-gold);
+            font-size: 28px;
+        }
+
+        .track-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .track-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--neon-gold);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .track-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .circle-btn {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            color: var(--neon-gold);
+            font-size: 18px;
+            cursor: pointer;
+            border: 1px solid var(--neon-red);
+            box-shadow: 0 0 8px rgba(255,7,58,0.3);
+            transition: var(--transition);
+        }
+        .circle-btn:active { background: var(--neon-red); color: black; transform: scale(0.9); }
+
+        /* ===== قسم تواصل معنا ===== */
+        .contact-section {
+            margin-top: 25px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 35px;
+            border: var(--border-neon);
+            box-shadow: var(--shadow-neon);
+            padding: 22px 18px;
+        }
+        .contact-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            color: var(--neon-gold);
+            font-size: 20px;
+        }
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            border-radius: 35px;
+            padding: 12px 18px;
+            border: 1px solid rgba(255,7,58,0.4);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .contact-item:active { transform: scale(0.98); border-color: var(--neon-gold); }
+        .icon-box {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(255,7,58,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 18px;
+            border: 1px solid var(--neon-gold);
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+        .icon-box i {
+            font-size: 22px;
+            color: var(--neon-gold);
+        }
+        .contact-info {
+            flex: 1;
+        }
+        .contact-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--neon-gold);
+            margin-bottom: 4px;
+        }
+        .contact-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        .arrow-left {
+            color: var(--neon-red);
+            font-size: 16px;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ===== مشغل ثابت ===== */
+        .player-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border-top: var(--border-neon);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            z-index: 30;
+            padding: 12px 16px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        .player-fixed.show { transform: translateY(0); }
+
+        .player-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .player-thumb {
+            width: 50px; height: 50px;
+            border-radius: 16px;
+            background: #222;
+            border: 1px solid var(--neon-gold);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .player-thumb img, .player-thumb .default-thumb {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-gold);
+            font-size: 24px;
+        }
+        .player-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .player-text h5 {
+            font-size: 14px;
+            color: var(--neon-gold);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .player-text p {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+        .ctrl-btn {
+            background: none;
+            border: none;
+            color: var(--neon-gold);
+            font-size: 20px;
+            cursor: pointer;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .ctrl-btn:active { background: rgba(255,7,58,0.3); }
+        .play-pause {
+            width: 55px; height: 55px;
+            background: var(--neon-red);
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 0 15px var(--neon-gold);
+        }
+        .play-pause:active { background: var(--neon-gold); color: black; }
+
+        .progress-area {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #aaa;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 5px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--neon-gold);
+            border-radius: 10px;
+            width: 0%;
+            position: absolute;
+            right: 0;
+            box-shadow: 0 0 8px var(--neon-red);
+        }
+
+        /* ===== توست التحميل ===== */
+        .loading-toast {
+            position: fixed;
+            bottom: 120px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--neon-gold);
+            border-radius: 50px;
+            padding: 12px 25px;
+            color: var(--neon-gold);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: var(--shadow-neon);
+            white-space: nowrap;
+        }
+        .loading-toast i { animation: spin 1s linear infinite; }
+
+        /* ===== الفوتر مع حقوق المبرمج ===== */
+        .footer {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            padding: 18px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255,7,58,0.3);
+            font-size: 13px;
+            margin-top: 20px;
+        }
+        .footer a {
+            color: var(--neon-gold);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* ===== مؤشر التحميل ===== */
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            width: 35px; height: 35px;
+            border: 3px solid rgba(255,215,0,0.2);
+            border-top-color: var(--neon-red);
+            border-radius: 50%;
+            animation: spin 0.8s infinite linear;
+            margin: 0 auto;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* تحسينات للشاشات الكبيرة */
+        @media (min-width: 768px) {
+            .main-content { padding: 20px 20px 130px; }
+            .app-icon { width: 140px; height: 140px; }
+            .app-icon i { font-size: 75px; }
+            .app-title { font-size: 32px; }
+            .track-item { padding: 15px; }
+            .track-thumb { width: 70px; height: 70px; }
+            .track-info h4 { font-size: 16px; }
+            .track-info p { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- الخلفية المتحركة -->
+    <div class="background">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+        <div class="stars" id="starsContainer"></div>
+    </div>
+
+    <!-- الهيدر (بدون سهم) -->
+    <div class="header">
+        <div class="page-title">
+            <i class="fas fa-mosque"></i>
+            <span> صدقة جارية للمبرمج </span>
+        </div>
+        <div class="social-icons">
+            <a href="https://t.me/szc_v" target="_blank" title="تيليجرام"><i class="fab fa-telegram-plane"></i></a>
+            <a href="https://black3web.github.io/Blackweb/" target="_blank" title="المبرمج"><i class="fas fa-code"></i></a>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <!-- أيقونة البداية -->
+        <div class="welcome-section">
+            <div class="app-icon" id="homeIcon">
+                <i class="fas fa-mosque"></i>
+            </div>
+            <h1 class="app-title"> أذكار <span> </span></h1>
+        </div>
+
+        <!-- شريط البحث -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="ابحث عن قارئ أو سورة...">
+                <button class="btn-search" onclick="runSearch()"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- نتائج البحث -->
+        <div id="loader" class="loader"><div class="spinner"></div></div>
+        <div class="results-container" id="resultsArea"></div>
+
+        <!-- قسم تواصل معنا -->
+        <div class="contact-section">
+            <div class="contact-header">
+                <i class="fas fa-headset"></i>
+                <span>تواصل معنا</span>
+            </div>
+            <div class="contact-list">
+                <div class="contact-item" data-url="https://t.me/szc_v">
+                    <div class="icon-box"><i class="fab fa-telegram-plane"></i></div>
+                    <div class="contact-info">
+                        <h3>حساب تليجرام</h3>
+                        <p>@szc_v</p>
+                    </div>
+                    <i class="fas fa-chevron-left arrow-left"></i>
+                </div>
+                <div class="contact-item" data-url="https://t.me/swc_t">
+                    <div class="icon-box"><i class="fab fa-telegram"></i></div>
+                    <div class="contact-info">
+                        <h3>قناة تليجرام</h3>
+                        <p>t.me/swc_t</p>
+                    </div>
+                    <i class="fas fa-chevron-left arrow-left"></i>
+                </div>
+                <div class="contact-item" data-url="https://black3web.github.io/Blackweb/">
+                    <div class="icon-box"><i class="fas fa-code"></i></div>
+                    <div class="contact-info">
+                        <h3>موقع المبرمج</h3>
+                        <p>black3web.github.io/Blackweb</p>
+                    </div>
+                    <i class="fas fa-chevron-left arrow-left"></i>
+                </div>
+            </div>
+            <p class="footer-note">نسألكم الدعاء</p>
+            <p class="footer-note">شارك الموقع لكي تكون صدقة جارية لكم و لنا</p>
+            <p class="footer-note"> https://black3web.github.io/TR7/ </p>
+        </div>
+    </div>
+
+    <!-- مشغل ثابت -->
+    <div class="player-fixed" id="playerFixed">
+        <div class="player-content">
+            <div class="player-info">
+                <div class="player-thumb" id="playerThumb"><div class="default-thumb"><i class="fas fa-mosque"></i></div></div>
+                <div class="player-text">
+                    <h5 id="playerTitle">اختر تلاوة</h5>
+                    <p id="playerSub">استماع ممتع</p>
+                </div>
+            </div>
+            <div class="progress-area">
+                <span id="currentTime">00:00</span>
+                <div class="progress-bar" id="progressWrapper" onclick="seek(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span id="duration">00:00</span>
+            </div>
+            <div class="player-controls">
+                <button class="ctrl-btn" onclick="playNextPrev(-1)"><i class="fas fa-step-backward"></i></button>
+                <button class="ctrl-btn play-pause" onclick="togglePlay()"><i class="fas fa-play" id="mainPlayIcon"></i></button>
+                <button class="ctrl-btn" onclick="playNextPrev(1)"><i class="fas fa-step-forward"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- توست التحميل -->
+    <div id="loadingToast" class="loading-toast" style="display: none;"><i class="fas fa-circle-notch"></i> جاري التحميل...</div>
+
+    <!-- الفوتر -->
+    <div class="footer">
+        <p>حقوق التطبيق <a href="https://black3web.github.io/Blackweb/" target="_blank">جلال</a> © 2026 | <i class="fas fa-heart" style="color: var(--neon-red);"></i> تصميم نيون</p>
+    </div>
+
+    <audio id="player" style="display: none;"></audio>
+
+    <script>
+        (function() {
+            // إنشاء النجوم
+            function createStars() {
+                const container = document.getElementById('starsContainer');
+                for (let i = 0; i < 80; i++) {
+                    let s = document.createElement('div');
+                    s.className = 'star';
+                    let size = Math.random() * 3 + 1;
+                    s.style.width = size + 'px';
+                    s.style.height = size + 'px';
+                    s.style.left = Math.random() * 100 + '%';
+                    s.style.top = Math.random() * 100 + '%';
+                    s.style.animationDelay = Math.random() * 5 + 's';
+                    container.appendChild(s);
+                }
+            }
+            createStars();
+
+            const player = document.getElementById('player');
+            const resultsArea = document.getElementById('resultsArea');
+            const loader = document.getElementById('loader');
+            const playerFixed = document.getElementById('playerFixed');
+            const mainPlayIcon = document.getElementById('mainPlayIcon');
+            const progressFill = document.getElementById('progressFill');
+            const playerTitle = document.getElementById('playerTitle');
+            const playerSub = document.getElementById('playerSub');
+            const playerThumb = document.getElementById('playerThumb');
+            const loadingToast = document.getElementById('loadingToast');
+
+            let currentPlaylist = [];
+            let currentIndex = -1;
+            let searchTimeout;
+
+            function showToast(msg, icon = 'circle-notch', duration = 2000) {
+                loadingToast.style.display = 'flex';
+                loadingToast.innerHTML = `<i class="fas fa-${icon} fa-spin"></i> ${msg}`;
+                setTimeout(() => { loadingToast.style.display = 'none'; }, duration);
+            }
+
+            window.runSearch = function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(async () => {
+                    const q = document.getElementById('searchInput').value.trim();
+                    if (!q) return;
+                    loader.style.display = 'block';
+                    resultsArea.innerHTML = '';
+                    try {
+                        const response = await fetch("https://vidssave.com/api/proxy", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ url: "/media/hot_list", data: { hot_type: "ytb", keyword: q + " تلاوة" } })
+                        });
+                        const data = await response.json();
+                        currentPlaylist = data.data.items || [];
+                        displayResults(currentPlaylist);
+                    } catch (e) {
+                        resultsArea.innerHTML = '<p style="color:var(--neon-red); text-align:center;">خطأ في الاتصال</p>';
+                    }
+                    loader.style.display = 'none';
+                }, 300);
+            };
+
+            function displayResults(items) {
+                if (!items.length) {
+                    resultsArea.innerHTML = '<p style="text-align:center; opacity:0.7;">لا توجد نتائج</p>';
+                    return;
+                }
+                resultsArea.innerHTML = items.map((item, idx) => {
+                    let thumbHtml = '<div class="default-thumb"><i class="fas fa-mosque"></i></div>';
+                    if (item.url && item.url.includes('youtube.com')) {
+                        try {
+                            let videoId = new URL(item.url).searchParams.get('v');
+                            if (videoId) thumbHtml = `<img src="https://i.ytimg.com/vi/${videoId}/default.jpg" alt="thumb">`;
+                        } catch (e) {}
+                    }
+                    let title = item.title || 'بدون عنوان';
+                    let reader = 'قارئ مميز';
+                    if (title.includes('|')) {
+                        let parts = title.split('|');
+                        reader = parts[0].trim();
+                    }
+                    return `
+                        <div class="track-item" data-index="${idx}">
+                            <div class="track-thumb">${thumbHtml}</div>
+                            <div class="track-info">
+                                <h4>${title.length > 45 ? title.substr(0,45)+'...' : title}</h4>
+                                <p>${reader} • جودة عالية</p>
+                            </div>
+                            <div class="track-actions">
+                                <button class="circle-btn" onclick="playFromList(${idx})"><i class="fas fa-play"></i></button>
+                                <button class="circle-btn" onclick="downloadItem(${idx})"><i class="fas fa-download"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            window.playFromList = function(index) {
+                currentIndex = index;
+                const item = currentPlaylist[index];
+                handleAction(item.url, 'play', item);
+            };
+
+            window.downloadItem = function(index) {
+                const item = currentPlaylist[index];
+                handleAction(item.url, 'download', item);
+            };
+
+            async function handleAction(url, type, item) {
+                showToast('جاري التجهيز...', 'circle-notch');
+                try {
+                    const response = await fetch("https://api.vidssave.com/api/contentsite_api/media/parse", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: `auth=20250901majwlqo&domain=api-ak.vidssave.com&origin=source&link=${encodeURIComponent(url)}`
+                    });
+                    const res = await response.json();
+                    const audios = res.data.resources.filter(r => r.type === 'audio' || r.format === 'mp3');
+                    let link = (audios.find(r => r.quality.includes('128')) || audios[0]).download_url;
+                    if (link.startsWith('//')) link = 'https:' + link;
+
+                    if (type === 'play') {
+                        player.src = link;
+                        player.play();
+                        playerTitle.innerText = item.title || 'تلاوة';
+                        playerSub.innerText = 'جاري التشغيل...';
+                        let thumbHtml = '<div class="default-thumb"><i class="fas fa-mosque"></i></div>';
+                        if (item.url && item.url.includes('youtube.com')) {
+                            try {
+                                let videoId = new URL(item.url).searchParams.get('v');
+                                if (videoId) thumbHtml = `<img src="https://i.ytimg.com/vi/${videoId}/default.jpg">`;
+                            } catch (e) {}
+                        }
+                        playerThumb.innerHTML = thumbHtml;
+                        playerFixed.classList.add('show');
+                        showToast('تم التشغيل', 'check', 1500);
+                    } else {
+                        // تحميل محسّن باستخدام proxy موثوق
+                        await downloadWithProxy(link, item.title || 'تلاوة');
+                    }
+                } catch (e) {
+                    showToast('فشل، حاول مرة أخرى', 'exclamation-triangle', 2500);
+                }
+            }
+
+            // دالة تحميل محسّنة باستخدام allorigins
+            async function downloadWithProxy(url, filename) {
+                showToast('جاري التحميل...', 'download');
+                try {
+                    // استخدام proxy allorigins الذي يعمل بشكل أفضل
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(proxyUrl);
+                    const blob = await response.blob();
+                    
+                    // التحقق من حجم الملف (يجب ألا يكون فارغاً)
+                    if (blob.size < 1024) { // أقل من 1KB قد يكون خطأ
+                        throw new Error('الملف فارغ');
+                    }
+                    
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename + '.mp3';
+                    a.click();
+                    window.URL.revokeObjectURL(blobUrl);
+                    showToast('تم التحميل بنجاح', 'check', 2000);
+                } catch (error) {
+                    console.error('Proxy download failed:', error);
+                    // إذا فشل، نفتح الرابط مباشرة كخيار أخير
+                    showToast('جاري فتح الرابط...', 'external-link', 2000);
+                    window.open(url, '_blank');
+                }
+            }
+
+            window.playNextPrev = function(dir) {
+                let newIdx = currentIndex + dir;
+                if (newIdx >= 0 && newIdx < currentPlaylist.length) {
+                    playFromList(newIdx);
+                } else {
+                    showToast(dir === 1 ? 'نهاية القائمة' : 'بداية القائمة', 'info', 1500);
+                }
+            };
+
+            window.togglePlay = function() {
+                if (player.paused) player.play();
+                else player.pause();
+            };
+
+            player.onplay = () => { mainPlayIcon.className = 'fas fa-pause'; };
+            player.onpause = () => { mainPlayIcon.className = 'fas fa-play'; };
+            player.ontimeupdate = () => {
+                if (player.duration) {
+                    let pct = (player.currentTime / player.duration) * 100;
+                    progressFill.style.width = pct + '%';
+                    document.getElementById('currentTime').innerText = formatTime(player.currentTime);
+                    document.getElementById('duration').innerText = formatTime(player.duration);
+                }
+            };
+
+            window.seek = function(e) {
+                let rect = document.getElementById('progressWrapper').getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let width = rect.width;
+                let pct = 1 - (x / width); // RTL
+                player.currentTime = pct * player.duration;
+            };
+
+            function formatTime(sec) {
+                if (isNaN(sec)) return '00:00';
+                let m = Math.floor(sec / 60);
+                let s = Math.floor(sec % 60);
+                return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+            }
+
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') runSearch();
+            });
+
+            document.getElementById('homeIcon').addEventListener('click', () => {
+                document.getElementById('searchInput').focus();
+            });
+
+            // عناصر التواصل مع تأخير 3 ثوانٍ
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    if (!url) return;
+                    showToast('جاري التوجيه...', 'arrow-left', 3000);
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        window.location.href = url;
+                    }, 3000);
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
