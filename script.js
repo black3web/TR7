@@ -1,72 +1,60 @@
 // ===================================================
-// ملف script.js - منطق التطبيق الكامل (نسخة محسنة ومستقرة)
-// جميع التعليقات بالعربية لشرح كل وظيفة
+// ملف script.js - منطق التطبيق الكامل (نسخة مستقرة ومحسنة)
+// جميع التعليقات بالعربية
 // ===================================================
 
 /******************************************
  * 1. إعدادات Canvas مع تحسين الأداء      *
- *    وإيقاف الرسم عند خفوت التطبيق       *
  ******************************************/
 (function initOptimizedBackground() {
     const canvas = document.getElementById('bgCanvas');
-    if (!canvas) return; // في حال عدم وجود canvas
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width, height;
     let particles = [];
     let stars = [];
     let waves = [];
     let animationFrame;
-    let isVisible = true; // حالة ظهور الصفحة
+    let isVisible = true;
 
-    // مراقبة تغيير رؤية الصفحة (Page Visibility API)
     document.addEventListener('visibilitychange', () => {
         isVisible = !document.hidden;
-        if (isVisible) {
-            // إذا عادت الرؤية، نستأنف الرسم
-            if (!animationFrame) {
-                animationFrame = requestAnimationFrame(animate);
-            }
-        } else {
-            // إذا اختفت، نوقف الرسم لتوفير البطارية
-            if (animationFrame) {
-                cancelAnimationFrame(animationFrame);
-                animationFrame = null;
-            }
+        if (isVisible && !animationFrame) {
+            animationFrame = requestAnimationFrame(animate);
+        } else if (!isVisible && animationFrame) {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = null;
         }
     });
 
-    // ضبط حجم الكانفس مع النافذة
     function resizeCanvas() {
         width = window.innerWidth;
         height = window.innerHeight;
         canvas.width = width;
         canvas.height = height;
-        initParticles();  // إعادة إنشاء الجسيمات بما يتناسب مع الحجم الجديد
+        initParticles();
     }
 
-    // إنشاء جسيمات للخلفية: نجوم وأشكال هندسية (عدد أقل للأداء)
     function initParticles() {
         particles = [];
         stars = [];
         waves = [];
 
-        // نجوم متصاعدة (عدد أقل: 25 بدلاً من 40)
         for (let i = 0; i < 25; i++) {
             stars.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 radius: Math.random() * 2 + 1,
-                speed: Math.random() * 0.3 + 0.1, // أبطأ
+                speed: Math.random() * 0.3 + 0.1,
                 opacity: Math.random() * 0.6 + 0.2
             });
         }
 
-        // أشكال هندسية معقدة (عدد أقل: 5 بدلاً من 8)
         for (let i = 0; i < 5; i++) {
             particles.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
-                size: Math.random() * 60 + 30, // أصغر
+                size: Math.random() * 60 + 30,
                 speedX: (Math.random() - 0.5) * 0.1,
                 speedY: (Math.random() - 0.5) * 0.1,
                 angle: Math.random() * Math.PI * 2,
@@ -74,7 +62,6 @@
             });
         }
 
-        // تموجات ضوئية (عدد أقل: 2 بدلاً من 3)
         for (let i = 0; i < 2; i++) {
             waves.push({
                 y: Math.random() * height,
@@ -86,18 +73,14 @@
         }
     }
 
-    // دالة الرسم المتحرك (تُستدعى باستمرار)
     function animate() {
         if (!isVisible) {
-            // إذا كانت الصفحة غير مرئية، نوقف الطلب
             animationFrame = null;
             return;
         }
 
         ctx.clearRect(0, 0, width, height);
 
-        // 1. رسم النجوم المتصاعدة
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         for (let i = 0; i < stars.length; i++) {
             const star = stars[i];
             ctx.beginPath();
@@ -111,7 +94,6 @@
             }
         }
 
-        // 2. رسم الأشكال الهندسية
         ctx.lineWidth = 1;
         ctx.shadowColor = '#39ff14';
         ctx.shadowBlur = 8;
@@ -121,26 +103,23 @@
             ctx.translate(p.x, p.y);
             ctx.rotate(p.angle);
             ctx.beginPath();
-            // رسم شكل معقد (مربع متقاطع) بعدد خطوط أقل
             for (let j = 0; j < 4; j++) {
                 ctx.moveTo(-p.size/2, -p.size/2 + j * p.size/3);
                 ctx.lineTo(p.size/2, -p.size/2 + j * p.size/3);
                 ctx.moveTo(-p.size/2 + j * p.size/3, -p.size/2);
                 ctx.lineTo(-p.size/2 + j * p.size/3, p.size/2);
             }
-            ctx.strokeStyle = 'rgba(57, 255, 20, 0.1)'; // شفافية أقل
+            ctx.strokeStyle = 'rgba(57, 255, 20, 0.1)';
             ctx.stroke();
             ctx.restore();
 
             p.x += p.speedX;
             p.y += p.speedY;
             p.angle += p.spin;
-
             if (p.x < 0 || p.x > width) p.speedX *= -1;
             if (p.y < 0 || p.y > height) p.speedY *= -1;
         }
 
-        // 3. رسم التموجات الضوئية (بخطوط أقل)
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#ffd700';
         ctx.strokeStyle = 'rgba(255, 215, 0, 0.07)';
@@ -148,7 +127,7 @@
         for (let i = 0; i < waves.length; i++) {
             const wave = waves[i];
             ctx.beginPath();
-            for (let x = 0; x < width; x += 20) { // زيادة الخطوة لتحسين الأداء
+            for (let x = 0; x < width; x += 20) {
                 let y = wave.y + Math.sin(x * wave.frequency + wave.offset) * wave.amplitude;
                 if (x === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
@@ -163,12 +142,11 @@
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-    animate(); // بدء الرسم
+    animate();
 })();
 
 /******************************************
  * 2. إدارة LocalStorage والمستخدمين      *
- *    (محسنة ضد الأخطاء)                  *
  ******************************************/
 const Database = (function() {
     let users = [];
@@ -178,7 +156,6 @@ const Database = (function() {
     const STORAGE_CURRENT = 'tasbeeh_current';
     const STORAGE_HISTORY = 'tasbeeh_history';
 
-    // تهيئة البيانات
     function loadData() {
         try {
             const storedUsers = localStorage.getItem(STORAGE_USERS);
@@ -200,7 +177,6 @@ const Database = (function() {
         }
     }
 
-    // حفظ المستخدمين
     function saveUsers() {
         try {
             localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
@@ -209,7 +185,6 @@ const Database = (function() {
         }
     }
 
-    // حفظ المستخدم الحالي
     function saveCurrentUser(userId) {
         try {
             if (userId) {
@@ -224,7 +199,6 @@ const Database = (function() {
         }
     }
 
-    // توليد 100 مستخدم وهمي
     function generateMockUsers() {
         users = [];
         const firstNames = ['أحمد', 'محمد', 'علي', 'حسن', 'حسين', 'فاطمة', 'زينب', 'عمر', 'خالد', 'يوسف'];
@@ -252,17 +226,14 @@ const Database = (function() {
         saveUsers();
     }
 
-    // البحث عن مستخدم باسم المستخدم
     function findUserByUsername(username) {
         return users.find(u => u.username === username);
     }
 
-    // البحث عن مستخدم بالمعرف
     function findUserById(userId) {
         return users.find(u => u.userId === userId);
     }
 
-    // إضافة مستخدم جديد
     function registerUser(fullName, username, password) {
         if (findUserByUsername(username)) {
             return { success: false, message: 'اسم المستخدم موجود مسبقاً' };
@@ -282,7 +253,6 @@ const Database = (function() {
         return { success: true, user: newUser };
     }
 
-    // الحصول على سجل المستخدم
     function getHistoryForUser(userId) {
         try {
             const allHistory = JSON.parse(localStorage.getItem(STORAGE_HISTORY)) || [];
@@ -292,7 +262,6 @@ const Database = (function() {
         }
     }
 
-    // إضافة سجل
     function addHistoryEntry(userId, value) {
         try {
             const allHistory = JSON.parse(localStorage.getItem(STORAGE_HISTORY)) || [];
@@ -307,7 +276,6 @@ const Database = (function() {
         }
     }
 
-    // تحديث بيانات المستخدم (للإحصائيات)
     function updateUserStats(userId, totalClicksDelta, maxSessionValue, maxSessionDate) {
         const user = findUserById(userId);
         if (!user) return;
@@ -321,7 +289,6 @@ const Database = (function() {
         saveUsers();
     }
 
-    // تحديث ختمات فاطمة
     function updateFatimahCompletions(userId, completions) {
         const user = findUserById(userId);
         if (user) {
@@ -341,16 +308,14 @@ const Database = (function() {
         addHistoryEntry,
         updateUserStats,
         updateFatimahCompletions,
-        getAllUsers: () => users.slice() // نسخة للقراءة فقط
+        getAllUsers: () => users.slice()
     };
 })();
 
 /******************************************
  * 3. إدارة التنقل بين الصفحات (Router)   *
- *    باستخدام goTo(pageId) مع تأثيرات    *
  ******************************************/
 const Router = (function() {
-    // تحديد جميع الصفحات
     const pages = {
         splash: document.getElementById('splashPage'),
         auth: document.getElementById('authPage'),
@@ -358,15 +323,12 @@ const Router = (function() {
         top100: document.getElementById('top100Page')
     };
 
-    // دالة للانتقال إلى صفحة معينة
     function goTo(pageId) {
-        // إخفاء جميع الصفحات
         Object.values(pages).forEach(page => {
             if (page) {
                 page.classList.remove('active');
             }
         });
-        // إظهار الصفحة المطلوبة
         const target = pages[pageId];
         if (target) {
             target.classList.add('active');
@@ -375,42 +337,45 @@ const Router = (function() {
         }
     }
 
-    return {
-        goTo
-    };
+    return { goTo };
 })();
 
 /******************************************
- * 4. عداد الزوار الكلي (Global Counter)  *
- *    باستخدام API مجاني (CountAPI)       *
+ * 4. عداد الزوار الكلي (مع fallback)     *
  ******************************************/
 (function initVisitorCounter() {
     const counterElement = document.getElementById('globalVisitorsCount');
     if (!counterElement) return;
 
-    // استخدام CountAPI (لا يتطلب مفتاح)
+    // محاولة استخدام CountAPI، وفي حالة الفشل نستخدم localStorage كبديل
     fetch('https://api.countapi.xyz/hit/tasbeeh-smart/visitors')
         .then(response => response.json())
         .then(data => {
             if (data && data.value !== undefined) {
                 counterElement.textContent = data.value;
             } else {
-                counterElement.textContent = '---';
+                throw new Error('Invalid response');
             }
         })
         .catch(() => {
-            // في حالة الفشل، نعرض رقم افتراضي
-            counterElement.textContent = '1234';
+            // استخدام عداد محلي (زيارة واحدة لكل جلسة)
+            let localCount = localStorage.getItem('local_visitor_count');
+            if (!localCount) {
+                localCount = '1';
+                localStorage.setItem('local_visitor_count', '1');
+            } else {
+                localCount = (parseInt(localCount) + 1).toString();
+                localStorage.setItem('local_visitor_count', localCount);
+            }
+            counterElement.textContent = localCount;
         });
 })();
 
 /******************************************
  * 5. منطق التسبيح الذكي وتسبيح فاطمة     *
- *    مع التكامل مع قاعدة البيانات        *
  ******************************************/
 const TasbeehApp = (function() {
     // عناصر DOM
-    // عدادات الذكي
     const smartCounterSpan = document.getElementById('smartCounter');
     const smartIncrementBtn = document.getElementById('smartIncrementBtn');
     const smartStatsBtn = document.getElementById('smartStatsBtn');
@@ -418,7 +383,6 @@ const TasbeehApp = (function() {
     const smartHistoryBtn = document.getElementById('smartHistoryBtn');
     const smartTopBtn = document.getElementById('smartTopBtn');
 
-    // عدادات فاطمة
     const fatimahPhaseLabel = document.getElementById('fatimahPhaseLabel');
     const fatimahPhaseCount = document.getElementById('fatimahPhaseCount');
     const fatimahCyclesSpan = document.getElementById('fatimahCycles');
@@ -426,7 +390,6 @@ const TasbeehApp = (function() {
     const fatimahResetBtn = document.getElementById('fatimahResetBtn');
     const fatimahTopBtn = document.getElementById('fatimahTopBtn');
 
-    // Modal
     const statsModal = document.getElementById('statsModal');
     const statsMaxSession = document.getElementById('statsMaxSession');
     const statsMaxSessionDate = document.getElementById('statsMaxSessionDate');
@@ -435,7 +398,6 @@ const TasbeehApp = (function() {
     const historyModal = document.getElementById('historyModal');
     const historyList = document.getElementById('historyList');
 
-    // Top100
     const backFromTop = document.getElementById('backFromTop');
     const topTotalTab = document.getElementById('topTotalTab');
     const topSessionTab = document.getElementById('topSessionTab');
@@ -444,13 +406,11 @@ const TasbeehApp = (function() {
     const topSessionList = document.getElementById('topSessionList');
     const topFatimahList = document.getElementById('topFatimahList');
 
-    // Tabs
     const tabTasbeeh = document.getElementById('tabTasbeeh');
     const tabFatimah = document.getElementById('tabFatimah');
     const tasbeehPane = document.getElementById('tasbeehContent');
     const fatimahPane = document.getElementById('fatimahContent');
 
-    // Auth
     const authTitle = document.getElementById('authTitle');
     const nameField = document.getElementById('nameField');
     const confirmField = document.getElementById('confirmField');
@@ -465,7 +425,7 @@ const TasbeehApp = (function() {
 
     // متغيرات الحالة
     let smartCurrentCounter = 0;
-    let smartMaxSession = 0; // أعلى رقم في الجلسة الحالية (للتحديث)
+    let smartMaxSession = 0;
 
     const PHASES = [
         { text: 'الله أكبر', required: 34 },
@@ -478,18 +438,22 @@ const TasbeehApp = (function() {
 
     // تهيئة المستخدم
     function initUser() {
-        const currentUser = Database.getCurrentUser();
-        if (!currentUser) return;
-        const user = Database.findUserById(currentUser);
-        if (!user) return;
+        try {
+            const currentUser = Database.getCurrentUser();
+            if (!currentUser) return;
+            const user = Database.findUserById(currentUser);
+            if (!user) return;
 
-        smartCurrentCounter = 0;
-        smartCounterSpan.innerText = smartCurrentCounter;
-        smartMaxSession = user.maxSession || 0;
+            smartCurrentCounter = 0;
+            if (smartCounterSpan) smartCounterSpan.innerText = smartCurrentCounter;
+            smartMaxSession = user.maxSession || 0;
 
-        fatimahCycles = user.fatimahCompletions || 0;
-        fatimahCyclesSpan.innerText = fatimahCycles;
-        resetFatimahCounters();
+            fatimahCycles = user.fatimahCompletions || 0;
+            if (fatimahCyclesSpan) fatimahCyclesSpan.innerText = fatimahCycles;
+            resetFatimahCounters();
+        } catch (e) {
+            console.error('خطأ في تهيئة المستخدم:', e);
+        }
     }
 
     function resetFatimahCounters() {
@@ -499,15 +463,16 @@ const TasbeehApp = (function() {
     }
 
     function updateFatimahUI() {
+        if (!fatimahPhaseLabel || !fatimahPhaseCount) return;
         const phase = PHASES[fatimahCurrentPhase];
         fatimahPhaseLabel.innerText = phase.text;
         fatimahPhaseCount.innerText = `${fatimahPhaseCounter}/${phase.required}`;
     }
 
-    // Auth mode
-    let authMode = 'register'; // 'register' or 'login'
+    let authMode = 'register';
     function setAuthMode(mode) {
         authMode = mode;
+        if (!authTitle || !authSubmit || !authToggle || !nameField || !confirmField) return;
         if (mode === 'register') {
             authTitle.innerText = 'إنشاء حساب';
             authSubmit.innerText = 'تسجيل';
@@ -524,12 +489,11 @@ const TasbeehApp = (function() {
         authMessage.innerText = '';
     }
 
-    // عرض إحصائيات المستخدم
     function showStats() {
         const currentUser = Database.getCurrentUser();
         if (!currentUser) return;
         const user = Database.findUserById(currentUser);
-        if (user) {
+        if (user && statsModal && statsMaxSession && statsMaxSessionDate && statsTotalClicks) {
             statsMaxSession.innerText = user.maxSession || 0;
             statsMaxSessionDate.innerText = user.maxSessionDate || '---';
             statsTotalClicks.innerText = user.totalClicks || 0;
@@ -537,11 +501,11 @@ const TasbeehApp = (function() {
         }
     }
 
-    // عرض السجل
     function showHistory() {
         const currentUser = Database.getCurrentUser();
         if (!currentUser) return;
         const history = Database.getHistoryForUser(currentUser);
+        if (!historyList) return;
         historyList.innerHTML = '';
         if (history.length === 0) {
             historyList.innerHTML = '<li>لا يوجد سجل بعد</li>';
@@ -552,10 +516,9 @@ const TasbeehApp = (function() {
                 historyList.appendChild(li);
             });
         }
-        historyModal.classList.add('active');
+        if (historyModal) historyModal.classList.add('active');
     }
 
-    // عرض Top100
     function openTop100() {
         Router.goTo('top100');
         renderTopLists();
@@ -573,6 +536,7 @@ const TasbeehApp = (function() {
     }
 
     function renderList(container, list, field) {
+        if (!container) return;
         container.innerHTML = '';
         const currentUser = Database.getCurrentUser();
         list.forEach((user, index) => {
@@ -591,165 +555,170 @@ const TasbeehApp = (function() {
         });
     }
 
-    // ربط الأحداث
     function bindEvents() {
-        // Auth
-        authToggle.addEventListener('click', () => {
-            setAuthMode(authMode === 'register' ? 'login' : 'register');
-        });
+        if (authToggle) {
+            authToggle.addEventListener('click', () => {
+                setAuthMode(authMode === 'register' ? 'login' : 'register');
+            });
+        }
 
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            authMessage.innerText = '';
+        if (authForm) {
+            authForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!authMessage) return;
+                authMessage.innerText = '';
 
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
+                const username = usernameInput ? usernameInput.value.trim() : '';
+                const password = passwordInput ? passwordInput.value : '';
 
-            if (!username || !password) {
-                authMessage.innerText = 'يرجى ملء جميع الحقول المطلوبة';
-                return;
-            }
-
-            if (authMode === 'register') {
-                const fullName = fullNameInput.value.trim();
-                const confirm = confirmInput.value;
-                if (!fullName || !confirm) {
-                    authMessage.innerText = 'يرجى ملء جميع الحقول';
+                if (!username || !password) {
+                    authMessage.innerText = 'يرجى ملء جميع الحقول المطلوبة';
                     return;
                 }
-                if (password !== confirm) {
-                    authMessage.innerText = 'كلمة المرور غير متطابقة';
-                    return;
-                }
-                const result = Database.registerUser(fullName, username, password);
-                if (result.success) {
-                    Database.saveCurrentUser(result.user.userId);
+
+                if (authMode === 'register') {
+                    const fullName = fullNameInput ? fullNameInput.value.trim() : '';
+                    const confirm = confirmInput ? confirmInput.value : '';
+                    if (!fullName || !confirm) {
+                        authMessage.innerText = 'يرجى ملء جميع الحقول';
+                        return;
+                    }
+                    if (password !== confirm) {
+                        authMessage.innerText = 'كلمة المرور غير متطابقة';
+                        return;
+                    }
+                    const result = Database.registerUser(fullName, username, password);
+                    if (result.success) {
+                        Database.saveCurrentUser(result.user.userId);
+                        initUser();
+                        Router.goTo('main');
+                    } else {
+                        authMessage.innerText = result.message;
+                    }
+                } else {
+                    const user = Database.findUserByUsername(username);
+                    if (!user || user.password !== password) {
+                        authMessage.innerText = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+                        return;
+                    }
+                    Database.saveCurrentUser(user.userId);
                     initUser();
                     Router.goTo('main');
-                } else {
-                    authMessage.innerText = result.message;
                 }
-            } else {
-                const user = Database.findUserByUsername(username);
-                if (!user || user.password !== password) {
-                    authMessage.innerText = 'اسم المستخدم أو كلمة المرور غير صحيحة';
-                    return;
+            });
+        }
+
+        if (tabTasbeeh && tabFatimah && tasbeehPane && fatimahPane) {
+            tabTasbeeh.addEventListener('click', () => {
+                tabTasbeeh.classList.add('active');
+                tabFatimah.classList.remove('active');
+                tasbeehPane.classList.add('active');
+                fatimahPane.classList.remove('active');
+            });
+
+            tabFatimah.addEventListener('click', () => {
+                tabFatimah.classList.add('active');
+                tabTasbeeh.classList.remove('active');
+                fatimahPane.classList.add('active');
+                tasbeehPane.classList.remove('active');
+            });
+        }
+
+        if (smartIncrementBtn) {
+            smartIncrementBtn.addEventListener('click', () => {
+                if (!Database.getCurrentUser()) return;
+                smartCurrentCounter++;
+                if (smartCounterSpan) smartCounterSpan.innerText = smartCurrentCounter;
+                if (smartCurrentCounter > smartMaxSession) {
+                    smartMaxSession = smartCurrentCounter;
                 }
-                Database.saveCurrentUser(user.userId);
-                initUser();
+            });
+        }
+
+        if (smartResetBtn) {
+            smartResetBtn.addEventListener('click', () => {
+                const currentUser = Database.getCurrentUser();
+                if (!currentUser) return;
+                Database.addHistoryEntry(currentUser, smartCurrentCounter);
+                Database.updateUserStats(currentUser, smartCurrentCounter, smartMaxSession, new Date().toLocaleDateString('ar-EG'));
+                smartCurrentCounter = 0;
+                if (smartCounterSpan) smartCounterSpan.innerText = smartCurrentCounter;
+                const user = Database.findUserById(currentUser);
+                smartMaxSession = user?.maxSession || 0;
+            });
+        }
+
+        if (smartStatsBtn) smartStatsBtn.addEventListener('click', showStats);
+        if (smartHistoryBtn) smartHistoryBtn.addEventListener('click', showHistory);
+        if (smartTopBtn) smartTopBtn.addEventListener('click', openTop100);
+
+        if (fatimahIncrementBtn) {
+            fatimahIncrementBtn.addEventListener('click', () => {
+                const currentUser = Database.getCurrentUser();
+                if (!currentUser) return;
+                fatimahPhaseCounter++;
+                const currentPhaseObj = PHASES[fatimahCurrentPhase];
+
+                if (fatimahPhaseCounter >= currentPhaseObj.required) {
+                    if (fatimahCurrentPhase === 2) {
+                        fatimahCycles++;
+                        if (fatimahCyclesSpan) fatimahCyclesSpan.innerText = fatimahCycles;
+                        Database.updateFatimahCompletions(currentUser, fatimahCycles);
+                        fatimahCurrentPhase = 0;
+                        fatimahPhaseCounter = 0;
+                    } else {
+                        fatimahCurrentPhase++;
+                        fatimahPhaseCounter = 0;
+                    }
+                }
+                updateFatimahUI();
+            });
+        }
+
+        if (fatimahResetBtn) {
+            fatimahResetBtn.addEventListener('click', resetFatimahCounters);
+        }
+        if (fatimahTopBtn) fatimahTopBtn.addEventListener('click', openTop100);
+
+        if (backFromTop) {
+            backFromTop.addEventListener('click', () => {
                 Router.goTo('main');
-            }
-        });
+            });
+        }
 
-        // Tabs
-        tabTasbeeh.addEventListener('click', () => {
-            tabTasbeeh.classList.add('active');
-            tabFatimah.classList.remove('active');
-            tasbeehPane.classList.add('active');
-            fatimahPane.classList.remove('active');
-        });
+        if (topTotalTab && topSessionTab && topFatimahTab && topTotalList && topSessionList && topFatimahList) {
+            topTotalTab.addEventListener('click', () => {
+                topTotalTab.classList.add('active');
+                topSessionTab.classList.remove('active');
+                topFatimahTab.classList.remove('active');
+                topTotalList.classList.add('active');
+                topSessionList.classList.remove('active');
+                topFatimahList.classList.remove('active');
+            });
 
-        tabFatimah.addEventListener('click', () => {
-            tabFatimah.classList.add('active');
-            tabTasbeeh.classList.remove('active');
-            fatimahPane.classList.add('active');
-            tasbeehPane.classList.remove('active');
-        });
+            topSessionTab.addEventListener('click', () => {
+                topSessionTab.classList.add('active');
+                topTotalTab.classList.remove('active');
+                topFatimahTab.classList.remove('active');
+                topSessionList.classList.add('active');
+                topTotalList.classList.remove('active');
+                topFatimahList.classList.remove('active');
+            });
 
-        // التسبيح الذكي
-        smartIncrementBtn.addEventListener('click', () => {
-            if (!Database.getCurrentUser()) return;
-            smartCurrentCounter++;
-            smartCounterSpan.innerText = smartCurrentCounter;
-            if (smartCurrentCounter > smartMaxSession) {
-                smartMaxSession = smartCurrentCounter;
-            }
-        });
+            topFatimahTab.addEventListener('click', () => {
+                topFatimahTab.classList.add('active');
+                topTotalTab.classList.remove('active');
+                topSessionTab.classList.remove('active');
+                topFatimahList.classList.add('active');
+                topTotalList.classList.remove('active');
+                topSessionList.classList.remove('active');
+            });
+        }
 
-        smartResetBtn.addEventListener('click', () => {
-            const currentUser = Database.getCurrentUser();
-            if (!currentUser) return;
-            // حفظ في السجل
-            Database.addHistoryEntry(currentUser, smartCurrentCounter);
-            // تحديث إحصائيات المستخدم
-            Database.updateUserStats(currentUser, smartCurrentCounter, smartMaxSession, new Date().toLocaleDateString('ar-EG'));
-            // إعادة تعيين العداد
-            smartCurrentCounter = 0;
-            smartCounterSpan.innerText = smartCurrentCounter;
-            // تحديث smartMaxSession من قاعدة البيانات (لأنه قد تغير)
-            const user = Database.findUserById(currentUser);
-            smartMaxSession = user?.maxSession || 0;
-        });
-
-        smartStatsBtn.addEventListener('click', showStats);
-        smartHistoryBtn.addEventListener('click', showHistory);
-        smartTopBtn.addEventListener('click', openTop100);
-
-        // تسبيح فاطمة
-        fatimahIncrementBtn.addEventListener('click', () => {
-            const currentUser = Database.getCurrentUser();
-            if (!currentUser) return;
-            fatimahPhaseCounter++;
-            const currentPhaseObj = PHASES[fatimahCurrentPhase];
-
-            if (fatimahPhaseCounter >= currentPhaseObj.required) {
-                if (fatimahCurrentPhase === 2) {
-                    fatimahCycles++;
-                    fatimahCyclesSpan.innerText = fatimahCycles;
-                    Database.updateFatimahCompletions(currentUser, fatimahCycles);
-                    fatimahCurrentPhase = 0;
-                    fatimahPhaseCounter = 0;
-                } else {
-                    fatimahCurrentPhase++;
-                    fatimahPhaseCounter = 0;
-                }
-            }
-            updateFatimahUI();
-        });
-
-        fatimahResetBtn.addEventListener('click', () => {
-            resetFatimahCounters();
-        });
-
-        fatimahTopBtn.addEventListener('click', openTop100);
-
-        // Top100
-        backFromTop.addEventListener('click', () => {
-            Router.goTo('main');
-        });
-
-        topTotalTab.addEventListener('click', () => {
-            topTotalTab.classList.add('active');
-            topSessionTab.classList.remove('active');
-            topFatimahTab.classList.remove('active');
-            topTotalList.classList.add('active');
-            topSessionList.classList.remove('active');
-            topFatimahList.classList.remove('active');
-        });
-
-        topSessionTab.addEventListener('click', () => {
-            topSessionTab.classList.add('active');
-            topTotalTab.classList.remove('active');
-            topFatimahTab.classList.remove('active');
-            topSessionList.classList.add('active');
-            topTotalList.classList.remove('active');
-            topFatimahList.classList.remove('active');
-        });
-
-        topFatimahTab.addEventListener('click', () => {
-            topFatimahTab.classList.add('active');
-            topTotalTab.classList.remove('active');
-            topSessionTab.classList.remove('active');
-            topFatimahList.classList.add('active');
-            topTotalList.classList.remove('active');
-            topSessionList.classList.remove('active');
-        });
-
-        // إغلاق النوافذ المنبثقة
         closeModalButtons.forEach(btn => {
             btn.addEventListener('click', () => {
-                statsModal.classList.remove('active');
-                historyModal.classList.remove('active');
+                if (statsModal) statsModal.classList.remove('active');
+                if (historyModal) historyModal.classList.remove('active');
             });
         });
 
@@ -760,41 +729,42 @@ const TasbeehApp = (function() {
         });
     }
 
-    // بدء التشغيل
     function start() {
-        Database.loadData();
-        bindEvents();
+        try {
+            Database.loadData();
+            bindEvents();
 
-        // التحقق من وجود مستخدم حالي
-        const currentUser = Database.getCurrentUser();
-        if (currentUser) {
-            // عرض splash مع progress bar
-            Router.goTo('splash');
-            
-            // عناصر شريط التحميل
-            const progressContainer = document.getElementById('splashProgressContainer');
-            const progressBar = document.getElementById('splashProgressBar');
-            
-            // التأكد من وجود العناصر قبل استخدامها
-            if (progressContainer && progressBar) {
-                progressContainer.classList.remove('hidden');
-                let width = 0;
-                const interval = setInterval(() => {
-                    width += 2;
-                    progressBar.style.width = width + '%';
-                    if (width >= 100) {
-                        clearInterval(interval);
-                        progressContainer.classList.add('hidden');
-                        initUser();
-                        Router.goTo('main');
-                    }
-                }, 20); // 100 * 20 = 2000ms (ثانيتان)
+            const currentUser = Database.getCurrentUser();
+            if (currentUser) {
+                Router.goTo('splash');
+
+                const progressContainer = document.getElementById('splashProgressContainer');
+                const progressBar = document.getElementById('splashProgressBar');
+
+                if (progressContainer && progressBar) {
+                    progressContainer.classList.remove('hidden');
+                    let width = 0;
+                    const interval = setInterval(() => {
+                        width += 2;
+                        progressBar.style.width = width + '%';
+                        if (width >= 100) {
+                            clearInterval(interval);
+                            progressContainer.classList.add('hidden');
+                            initUser();
+                            Router.goTo('main');
+                        }
+                    }, 20);
+                } else {
+                    initUser();
+                    Router.goTo('main');
+                }
             } else {
-                // إذا لم توجد عناصر التحميل (لأي سبب)، ننتقل مباشرة
-                initUser();
-                Router.goTo('main');
+                Router.goTo('auth');
+                setAuthMode('register');
             }
-        } else {
+        } catch (e) {
+            console.error('خطأ في بدء التشغيل:', e);
+            // في حالة خطأ، نذهب إلى صفحة المصادقة
             Router.goTo('auth');
             setAuthMode('register');
         }
@@ -806,7 +776,6 @@ const TasbeehApp = (function() {
 /******************************************
  * 6. تشغيل التطبيق                        *
  ******************************************/
-// التأكد من تحميل DOM بالكامل قبل البدء
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => TasbeehApp.start());
 } else {
