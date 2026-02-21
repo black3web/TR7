@@ -1,6 +1,6 @@
 // ===================================================
-// ملف script.js - منطق التطبيق الكامل (نسخة محسنة)
-// جميع التعليقات بالعربية لشرح كل وظيفة وتفاصيل التحسين
+// ملف script.js - منطق التطبيق الكامل (نسخة محسنة ومستقرة)
+// جميع التعليقات بالعربية لشرح كل وظيفة
 // ===================================================
 
 /******************************************
@@ -347,7 +347,7 @@ const Database = (function() {
 
 /******************************************
  * 3. إدارة التنقل بين الصفحات (Router)   *
- *    باستخدام MapsTo(pageId) مع تأثيرات  *
+ *    باستخدام goTo(pageId) مع تأثيرات    *
  ******************************************/
 const Router = (function() {
     // تحديد جميع الصفحات
@@ -388,12 +388,8 @@ const Router = (function() {
     const counterElement = document.getElementById('globalVisitorsCount');
     if (!counterElement) return;
 
-    const API_KEY = 'c17438b0-8f2e-4a1f-9b7a-5e2f3d4a5b6c'; // مفتاح وهمي (يمكن استبداله بأي)
-    const COUNTER_NAMESPACE = 'tasbeeh-smart';
-    const COUNTER_KEY = 'visitors';
-
     // استخدام CountAPI (لا يتطلب مفتاح)
-    fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`)
+    fetch('https://api.countapi.xyz/hit/tasbeeh-smart/visitors')
         .then(response => response.json())
         .then(data => {
             if (data && data.value !== undefined) {
@@ -440,7 +436,6 @@ const TasbeehApp = (function() {
     const historyList = document.getElementById('historyList');
 
     // Top100
-    const top100Screen = document.getElementById('top100Page');
     const backFromTop = document.getElementById('backFromTop');
     const topTotalTab = document.getElementById('topTotalTab');
     const topSessionTab = document.getElementById('topSessionTab');
@@ -775,20 +770,30 @@ const TasbeehApp = (function() {
         if (currentUser) {
             // عرض splash مع progress bar
             Router.goTo('splash');
+            
+            // عناصر شريط التحميل
             const progressContainer = document.getElementById('splashProgressContainer');
             const progressBar = document.getElementById('splashProgressBar');
-            progressContainer.classList.remove('hidden');
-            let width = 0;
-            const interval = setInterval(() => {
-                width += 2;
-                progressBar.style.width = width + '%';
-                if (width >= 100) {
-                    clearInterval(interval);
-                    progressContainer.classList.add('hidden');
-                    initUser();
-                    Router.goTo('main');
-                }
-            }, 20);
+            
+            // التأكد من وجود العناصر قبل استخدامها
+            if (progressContainer && progressBar) {
+                progressContainer.classList.remove('hidden');
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 2;
+                    progressBar.style.width = width + '%';
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        progressContainer.classList.add('hidden');
+                        initUser();
+                        Router.goTo('main');
+                    }
+                }, 20); // 100 * 20 = 2000ms (ثانيتان)
+            } else {
+                // إذا لم توجد عناصر التحميل (لأي سبب)، ننتقل مباشرة
+                initUser();
+                Router.goTo('main');
+            }
         } else {
             Router.goTo('auth');
             setAuthMode('register');
@@ -801,4 +806,9 @@ const TasbeehApp = (function() {
 /******************************************
  * 6. تشغيل التطبيق                        *
  ******************************************/
-TasbeehApp.start();
+// التأكد من تحميل DOM بالكامل قبل البدء
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => TasbeehApp.start());
+} else {
+    TasbeehApp.start();
+}
