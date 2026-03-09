@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="light-mode">
-    <header class="header">
+    <header class="header" id="mainHeader">
         <div class="logo">📁 Digital<span>Market</span></div>
         <div class="header-actions">
             <button class="cart-btn" onclick="window.location.href='cart.html'">
@@ -19,36 +19,84 @@
     </header>
 
     <main>
+        <!-- قسم البطل (Hero) مع إحصائيات حية -->
         <section class="hero">
             <h1>الملفات الرقمية الإبداعية <br> <span>بأفضل الأسعار</span></h1>
             <p>أكثر من 500 قالب وكتاب إلكتروني وأداة رقمية جاهزة للتحميل الفوري</p>
+            <div class="live-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="buyers-count" data-target="15234">0</span>
+                    <span class="stat-label">مشترٍ</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="sales-count" data-target="45890">0</span>
+                    <span class="stat-label">مبيعات</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="products-count" data-target="500">0</span>
+                    <span class="stat-label">منتج</span>
+                </div>
+            </div>
             <button class="btn-primary" onclick="window.location.href='#products'">تصفح المنتجات</button>
         </section>
 
-        <section class="categories">
-            <h2>التصنيفات</h2>
-            <div class="category-grid">
-                <div class="category-item">
-                    <div class="icon icon-pdf"></div>
-                    <span>كتب إلكترونية</span>
-                </div>
-                <div class="category-item">
-                    <div class="icon icon-code"></div>
-                    <span>أكواد برمجية</span>
-                </div>
-                <div class="category-item">
-                    <div class="icon icon-design"></div>
-                    <span>قوالب تصميم</span>
-                </div>
-                <div class="category-item">
-                    <div class="icon icon-audio"></div>
-                    <span>موسيقى خالية</span>
+        <!-- شريط البحث الذكي مع الفلترة -->
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="ابحث عن منتج..." class="search-input">
+                <div class="filter-options">
+                    <select id="typeFilter">
+                        <option value="all">جميع التصنيفات</option>
+                        <option value="ebook">كتب إلكترونية</option>
+                        <option value="code">أكواد برمجية</option>
+                        <option value="design">قوالب تصميم</option>
+                        <option value="audio">موسيقى</option>
+                    </select>
+                    <select id="priceFilter">
+                        <option value="all">جميع الأسعار</option>
+                        <option value="0-25">أقل من 25$</option>
+                        <option value="25-50">25$ - 50$</option>
+                        <option value="50-100">50$ - 100$</option>
+                        <option value="100+">أكثر من 100$</option>
+                    </select>
                 </div>
             </div>
         </section>
 
+        <!-- التصنيفات العائمة -->
+        <section class="categories-floating">
+            <h2>تصفح حسب التصنيف</h2>
+            <div class="category-floating-grid">
+                <div class="category-floating-item" data-category="ebook">
+                    <div class="floating-icon">📄</div>
+                    <span>كتب إلكترونية</span>
+                </div>
+                <div class="category-floating-item" data-category="code">
+                    <div class="floating-icon">{ }</div>
+                    <span>أكواد برمجية</span>
+                </div>
+                <div class="category-floating-item" data-category="design">
+                    <div class="floating-icon">🎨</div>
+                    <span>قوالب تصميم</span>
+                </div>
+                <div class="category-floating-item" data-category="audio">
+                    <div class="floating-icon">🎵</div>
+                    <span>موسيقى</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- المنتجات الأكثر رواجاً -->
+        <section class="trending-products">
+            <h2>الأكثر رواجاً 🔥</h2>
+            <div class="product-grid" id="trending-grid">
+                <!-- سيتم تعبئتها بواسطة JavaScript -->
+            </div>
+        </section>
+
+        <!-- جميع المنتجات -->
         <section class="products" id="products">
-            <h2>أحدث المنتجات</h2>
+            <h2>جميع المنتجات</h2>
             <div class="product-grid" id="product-grid">
                 <!-- يتم تعبئتها بواسطة JavaScript -->
             </div>
@@ -62,11 +110,144 @@
     <script src="data.js"></script>
     <script src="app.js"></script>
     <script>
-        // عرض المنتجات في الصفحة الرئيسية
+        // دوال إضافية للصفحة الرئيسية (عدادات، فلترة، عرض المنتجات)
         document.addEventListener('DOMContentLoaded', function() {
-            displayProductsOnIndex();
+            // تشغيل العدادات المتحركة
+            animateStats();
+            
+            // عرض المنتجات في القسم الرئيسي
+            displayProductsWithFilters();
+            
+            // عرض المنتجات الأكثر رواجاً (بناءً على المشاهدات الوهمية)
+            displayTrendingProducts();
+            
+            // تحديث عداد السلة
             updateCartCount();
+            
+            // إضافة مستمعي الأحداث للفلترة
+            document.getElementById('searchInput').addEventListener('input', filterProducts);
+            document.getElementById('typeFilter').addEventListener('change', filterProducts);
+            document.getElementById('priceFilter').addEventListener('change', filterProducts);
+            
+            // فلترة عند النقر على تصنيف عائم
+            document.querySelectorAll('.category-floating-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    document.getElementById('typeFilter').value = category;
+                    filterProducts();
+                });
+            });
         });
+
+        // عدادات متحركة
+        function animateStats() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                let count = 0;
+                const increment = target / 100; // سرعة التحديث
+                const updateCounter = () => {
+                    if (count < target) {
+                        count += increment;
+                        counter.innerText = Math.ceil(count).toLocaleString();
+                        setTimeout(updateCounter, 10);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                };
+                updateCounter();
+            });
+        }
+
+        // عرض المنتجات مع تطبيق الفلاتر
+        function displayProductsWithFilters() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const grid = document.getElementById('product-grid');
+            renderProducts(products, grid);
+        }
+
+        function renderProducts(products, grid) {
+            grid.innerHTML = '';
+            if (products.length === 0) {
+                grid.innerHTML = '<p class="no-results">لا توجد منتجات مطابقة</p>';
+                return;
+            }
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.setAttribute('data-id', product.id);
+                card.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>${product.description.substring(0, 60)}...</p>
+                    <div class="product-price">${product.price} $</div>
+                    <div class="product-actions">
+                        <button class="add-to-cart" data-id="${product.id}">➕ أضف للسلة</button>
+                        <button class="view-details" onclick="window.location.href='product.html?id=${product.id}'">🔍 التفاصيل</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // إعادة ربط أحداث أزرار الإضافة
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    if (typeof addToCart === 'function') {
+                        addToCart(id);
+                    } else {
+                        alert('تمت الإضافة (محاكاة)');
+                    }
+                });
+            });
+        }
+
+        // فلترة المنتجات
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+            const priceRange = document.getElementById('priceFilter').value;
+            
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            
+            // فلترة حسب البحث
+            if (searchTerm) {
+                products = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm));
+            }
+            
+            // فلترة حسب التصنيف
+            if (type !== 'all') {
+                products = products.filter(p => p.type === type);
+            }
+            
+            // فلترة حسب السعر
+            if (priceRange !== 'all') {
+                products = products.filter(p => {
+                    if (priceRange === '0-25') return p.price < 25;
+                    if (priceRange === '25-50') return p.price >= 25 && p.price <= 50;
+                    if (priceRange === '50-100') return p.price > 50 && p.price <= 100;
+                    if (priceRange === '100+') return p.price > 100;
+                });
+            }
+            
+            const grid = document.getElementById('product-grid');
+            renderProducts(products, grid);
+        }
+
+        // عرض المنتجات الأكثر رواجاً (بناءً على خاصية وهمية views)
+        function displayTrendingProducts() {
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            // إضافة خاصية مشاهدات وهمية لكل منتج إذا لم تكن موجودة
+            products = products.map(p => {
+                if (!p.views) {
+                    p.views = Math.floor(Math.random() * 1000) + 100;
+                }
+                return p;
+            });
+            // ترتيب تنازلي حسب المشاهدات
+            const trending = [...products].sort((a, b) => b.views - a.views).slice(0, 3);
+            const trendingGrid = document.getElementById('trending-grid');
+            renderProducts(trending, trendingGrid);
+        }
     </script>
 </body>
 </html>
