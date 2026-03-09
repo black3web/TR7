@@ -3,8 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة منتج جديد</title>
+    <title>إضافة منتج جديد - متعدد الخطوات</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* أنماط إضافية للنموذج متعدد الخطوات */
+        .multi-step-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--text-secondary);
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+            background: var(--bg-primary);
+            padding: 0 10px;
+        }
+        .step-number {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid var(--text-secondary);
+            transition: var(--transition);
+        }
+        .step.active .step-number {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .step.completed .step-number {
+            background: var(--accent-light);
+            color: white;
+            border-color: var(--accent-light);
+        }
+        .step-label {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--text-secondary);
+        }
+        .step.active .step-label {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active-step {
+            display: block;
+        }
+        .image-preview-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            min-height: 100px;
+            border: 2px dashed var(--accent);
+            border-radius: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+        .preview-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        .preview-image .remove-image {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .file-upload-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+        }
+        .file-upload-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body class="light-mode">
     <header class="header">
@@ -18,33 +153,76 @@
         </div>
     </header>
 
-    <main class="form-container">
-        <h1>إضافة منتج جديد</h1>
-        <form id="add-product-form">
-            <div class="form-group">
-                <label for="name">اسم المنتج</label>
-                <input type="text" id="name" name="name" required>
+    <main>
+        <div class="multi-step-form">
+            <h1>إضافة منتج جديد</h1>
+            
+            <!-- مؤشر الخطوات -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <span class="step-label">المعلومات الأساسية</span>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <span class="step-label">التفاصيل والسعر</span>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <span class="step-label">رفع الصور</span>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="price">السعر ($)</label>
-                <input type="number" id="price" name="price" step="0.01" min="0" required>
-            </div>
-            <div class="form-group">
-                <label for="description">وصف المنتج</label>
-                <textarea id="description" name="description" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="type">نوع المنتج</label>
-                <select id="type" name="type">
-                    <option value="ebook">كتاب إلكتروني</option>
-                    <option value="code">كود برمجي</option>
-                    <option value="design">قالب تصميم</option>
-                    <option value="audio">موسيقى</option>
-                </select>
-            </div>
-            <button type="submit" class="btn-primary">حفظ المنتج</button>
-            <button type="button" class="btn-secondary" onclick="window.location.href='dashboard.html'">إلغاء</button>
-        </form>
+
+            <!-- نموذج متعدد الخطوات -->
+            <form id="add-product-form" enctype="multipart/form-data">
+                <!-- الخطوة 1: المعلومات الأساسية -->
+                <div class="form-step active-step" id="step1-content">
+                    <div class="form-group">
+                        <label for="name">اسم المنتج</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">نوع المنتج</label>
+                        <select id="type" name="type" required>
+                            <option value="ebook">كتاب إلكتروني</option>
+                            <option value="code">كود برمجي</option>
+                            <option value="design">قالب تصميم</option>
+                            <option value="audio">موسيقى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- الخطوة 2: التفاصيل والسعر -->
+                <div class="form-step" id="step2-content">
+                    <div class="form-group">
+                        <label for="price">السعر ($)</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">وصف المنتج</label>
+                        <textarea id="description" name="description" rows="4" required></textarea>
+                    </div>
+                </div>
+
+                <!-- الخطوة 3: رفع الصور (معاينة فورية) -->
+                <div class="form-step" id="step3-content">
+                    <div class="form-group">
+                        <label>صور المنتج (يمكن رفع عدة صور)</label>
+                        <div class="image-preview-area" id="imagePreview"></div>
+                        <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+                        <button type="button" class="file-upload-btn" id="uploadBtn">اختر صوراً</button>
+                        <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:5px;">(محاكاة رفع الصور - يتم عرض أيقونات بدلاً من الصور الفعلية)</p>
+                    </div>
+                </div>
+
+                <!-- أزرار التنقل -->
+                <div class="navigation-buttons">
+                    <button type="button" class="btn-secondary" id="prevBtn" style="visibility: hidden;">السابق</button>
+                    <button type="button" class="btn-primary" id="nextBtn">التالي</button>
+                    <button type="submit" class="btn-primary" id="submitBtn" style="display: none;">حفظ المنتج</button>
+                </div>
+            </form>
+        </div>
     </main>
 
     <footer>
@@ -54,9 +232,168 @@
     <script src="data.js"></script>
     <script src="app.js"></script>
     <script>
+        // إدارة النموذج متعدد الخطوات
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('add-product-form').addEventListener('submit', addProduct);
+            const steps = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+            const stepContents = [
+                document.getElementById('step1-content'),
+                document.getElementById('step2-content'),
+                document.getElementById('step3-content')
+            ];
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            let currentStep = 0;
+
+            // تحديث واجهة الخطوات
+            function updateStepUI() {
+                stepContents.forEach((content, index) => {
+                    if (index === currentStep) {
+                        content.classList.add('active-step');
+                    } else {
+                        content.classList.remove('active-step');
+                    }
+                });
+
+                steps.forEach((step, index) => {
+                    step.classList.remove('active', 'completed');
+                    if (index === currentStep) {
+                        step.classList.add('active');
+                    } else if (index < currentStep) {
+                        step.classList.add('completed');
+                    }
+                });
+
+                // إظهار/إخفاء الأزرار
+                if (currentStep === 0) {
+                    prevBtn.style.visibility = 'hidden';
+                } else {
+                    prevBtn.style.visibility = 'visible';
+                }
+
+                if (currentStep === steps.length - 1) {
+                    nextBtn.style.display = 'none';
+                    submitBtn.style.display = 'inline-block';
+                } else {
+                    nextBtn.style.display = 'inline-block';
+                    submitBtn.style.display = 'none';
+                }
+            }
+
+            // الانتقال إلى الخطوة التالية
+            function nextStep() {
+                if (currentStep < steps.length - 1) {
+                    // التحقق من صحة المدخلات في الخطوة الحالية
+                    const inputs = stepContents[currentStep].querySelectorAll('input, select, textarea');
+                    let valid = true;
+                    inputs.forEach(input => {
+                        if (input.hasAttribute('required') && !input.value.trim()) {
+                            valid = false;
+                            input.style.borderColor = '#ef4444';
+                        } else {
+                            input.style.borderColor = '';
+                        }
+                    });
+                    if (!valid) {
+                        alert('يرجى ملء جميع الحقول المطلوبة');
+                        return;
+                    }
+                    currentStep++;
+                    updateStepUI();
+                }
+            }
+
+            // العودة إلى الخطوة السابقة
+            function prevStep() {
+                if (currentStep > 0) {
+                    currentStep--;
+                    updateStepUI();
+                }
+            }
+
+            // معالجة رفع الصور والمعاينة
+            const imageUpload = document.getElementById('imageUpload');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const imagePreview = document.getElementById('imagePreview');
+
+            uploadBtn.addEventListener('click', () => {
+                imageUpload.click();
+            });
+
+            imageUpload.addEventListener('change', function(e) {
+                const files = Array.from(e.target.files);
+                files.forEach(file => {
+                    // محاكاة معاينة الصورة باستخدام FileReader (نعرض أيقونة بدلاً من الصورة الفعلية لتجنب الصور الخارجية)
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        // نستخدم أيقونة بدلاً من الصورة
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'preview-image';
+                        previewDiv.innerHTML = `
+                            <span>🖼️</span>
+                            <span class="remove-image" onclick="this.parentElement.remove()">×</span>
+                        `;
+                        imagePreview.appendChild(previewDiv);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                // إعادة تعيين قيمة input للسماح برفع نفس الملف مرة أخرى
+                imageUpload.value = '';
+            });
+
+            // ربط الأزرار
+            prevBtn.addEventListener('click', prevStep);
+            nextBtn.addEventListener('click', nextStep);
+
+            // معالجة تقديم النموذج
+            document.getElementById('add-product-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // جمع البيانات من جميع الخطوات
+                const name = document.getElementById('name').value.trim();
+                const type = document.getElementById('type').value;
+                const price = parseFloat(document.getElementById('price').value);
+                const description = document.getElementById('description').value.trim();
+                
+                if (!name || isNaN(price) || !description) {
+                    alert('يرجى ملء جميع الحقول');
+                    return;
+                }
+                
+                // استدعاء دالة addProduct من app.js (إذا كانت موجودة) أو تنفيذ الحفظ محلياً
+                if (typeof addProduct === 'function') {
+                    addProduct(e);
+                } else {
+                    // محاكاة الحفظ
+                    const products = JSON.parse(localStorage.getItem('products')) || [];
+                    const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                    const newProduct = {
+                        id: newId,
+                        name,
+                        price,
+                        description,
+                        type,
+                        rating: 5.0,
+                        reviews: 0,
+                        date: new Date().toISOString().split('T')[0]
+                    };
+                    products.push(newProduct);
+                    localStorage.setItem('products', JSON.stringify(products));
+                    
+                    let stats = JSON.parse(localStorage.getItem('sellerStats')) || { totalEarnings: 1250.75, totalSales: 87 };
+                    stats.totalEarnings += price * 0.7;
+                    localStorage.setItem('sellerStats', JSON.stringify(stats));
+                    
+                    alert('تمت إضافة المنتج بنجاح');
+                    window.location.href = 'dashboard.html';
+                }
+            });
+
+            // تحديث عداد السلة
             updateCartCount();
+
+            // تهيئة واجهة الخطوات
+            updateStepUI();
         });
     </script>
 </body>
