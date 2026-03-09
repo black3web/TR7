@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المنتج</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-mode">
+    <header class="header">
+        <div class="logo">📁 Digital<span>Market</span></div>
+        <div class="header-actions">
+            <button class="cart-btn" onclick="window.location.href='cart.html'">
+                <span class="cart-icon"></span>
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
+            <button class="mode-toggle" id="mode-toggle" aria-label="تبديل الوضع الليلي"></button>
+        </div>
+    </header>
+
+    <main class="product-detail-container" id="product-detail">
+        <!-- سيتم عرض التفاصيل هنا -->
+    </main>
+
+    <footer>
+        <p>© 2025 سوق الملفات الرقمية</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProductDetail();
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

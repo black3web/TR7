@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة منتج جديد</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-mode">
+    <header class="header">
+        <div class="logo">📁 Digital<span>Market</span></div>
+        <div class="header-actions">
+            <button class="cart-btn" onclick="window.location.href='cart.html'">
+                <span class="cart-icon"></span>
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
+            <button class="mode-toggle" id="mode-toggle" aria-label="تبديل الوضع الليلي"></button>
+        </div>
+    </header>
+
+    <main class="form-container">
+        <h1>إضافة منتج جديد</h1>
+        <form id="add-product-form">
+            <div class="form-group">
+                <label for="name">اسم المنتج</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="price">السعر ($)</label>
+                <input type="number" id="price" name="price" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="description">وصف المنتج</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="type">نوع المنتج</label>
+                <select id="type" name="type">
+                    <option value="ebook">كتاب إلكتروني</option>
+                    <option value="code">كود برمجي</option>
+                    <option value="design">قالب تصميم</option>
+                    <option value="audio">موسيقى</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary">حفظ المنتج</button>
+            <button type="button" class="btn-secondary" onclick="window.location.href='dashboard.html'">إلغاء</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>© 2025 سوق الملفات الرقمية</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('add-product-form').addEventListener('submit', addProduct);
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>
