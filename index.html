@@ -1,252 +1,591 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="1">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>سوق الملفات الرقمية</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إيليا | البحث والتحميل</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* === المتغيرات والثيمات === */
+        :root {
+            --glass-bg: rgba(10, 10, 15, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --blur-val: blur(16px);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* ثيم 1: أحمر غامق وأسود نيون (الافتراضي) */
+        [data-theme="1"] {
+            --bg-base: #030000;
+            --neon-main: #ff003c;
+            --neon-sub: #8b0000;
+            --text-main: #ffffff;
+            --gradient: linear-gradient(135deg, #8b0000, #ff003c);
+            --glow: 0 0 20px rgba(255, 0, 60, 0.5);
+        }
+
+        /* ثيم 2: أخضر زمردي وألوان داكنة (شكل تقني) */
+        [data-theme="2"] {
+            --bg-base: #000803;
+            --neon-main: #00ff66;
+            --neon-sub: #004d1a;
+            --text-main: #e6ffe6;
+            --gradient: linear-gradient(135deg, #004d1a, #00ff66);
+            --glow: 0 0 20px rgba(0, 255, 102, 0.4);
+        }
+
+        /* ثيم 3: سماوي وذهبي (حديث وراقي) */
+        [data-theme="3"] {
+            --bg-base: #01060e;
+            --neon-main: #00e5ff;
+            --neon-sub: #ffb300;
+            --text-main: #e0f7fa;
+            --gradient: linear-gradient(135deg, #005073, #00e5ff);
+            --glow: 0 0 20px rgba(0, 229, 255, 0.5);
+        }
+
+        /* === الإعدادات الأساسية (إزالة المربعات الزرقاء) === */
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent !important; /* يمنع المربع الأزرق في الجوال */
+            outline: none !important;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.8s ease;
+        }
+
+        /* === الخلفية المتحركة (أشكال هندسية متطورة) === */
+        .animated-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2; overflow: hidden;
+            background: radial-gradient(circle at center, var(--neon-sub) 0%, var(--bg-base) 60%);
+            opacity: 0.3;
+        }
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); opacity: 0.6;
+            animation: moveOrbs 25s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 400px; height: 400px; background: var(--neon-main); top: -100px; right: -100px; }
+        .orb-2 { width: 350px; height: 350px; background: var(--neon-sub); bottom: -50px; left: -50px; animation-duration: 30s; animation-direction: alternate-reverse; }
+
+        @keyframes moveOrbs {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(150px, 150px) scale(1.2); }
+            100% { transform: translate(-100px, 200px) scale(0.9); }
+        }
+
+        /* === شاشة التحميل (جذور وبرق) === */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-base); z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease, visibility 0.6s;
+            overflow: hidden;
+        }
+        
+        /* جذور الأشجار / التفرعات الضوئية */
+        .roots-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, transparent 20%, var(--bg-base) 70%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M0,0 Q100,200 300,100 T600,400 T1000,100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"/><path d="M1000,800 Q800,500 500,700 T200,300 T0,800" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></svg>');
+            opacity: 0.5;
+            animation: pulseRoots 4s infinite alternate;
+        }
+
+        .loader-content { position: relative; z-index: 2; text-align: center; }
+        
+        /* -------- صورة الموقع هنا -------- */
+        /* غير الرابط في src إلى الصورة التي تريدها */
+        .loader-img {
+            width: 140px; height: 140px; border-radius: 30px;
+            object-fit: cover;
+            border: 2px solid var(--neon-main);
+            box-shadow: 0 0 40px var(--neon-main), inset 0 0 20px var(--neon-main);
+            animation: floatLogo 3s ease-in-out infinite;
+            margin-bottom: 30px;
+        }
+
+        /* شريط البرق */
+        .lightning-bar-container {
+            width: 250px; height: 4px; background: rgba(255,255,255,0.1);
+            border-radius: 10px; overflow: hidden; margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .lightning-bar {
+            width: 50%; height: 100%;
+            background: var(--neon-main);
+            box-shadow: 0 0 15px var(--neon-main), 0 0 30px var(--neon-main);
+            animation: lightningSpeed 1s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pulseRoots { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 0.7; transform: scale(1.05); } }
+        @keyframes floatLogo { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-15px) rotate(3deg); } }
+        @keyframes lightningSpeed { 0% { transform: translateX(-150%); } 100% { transform: translateX(250%); } }
+
+        /* === الزجاج المشترك === */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur-val);
+            -webkit-backdrop-filter: var(--blur-val);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            transition: var(--transition);
+        }
+        .glass-panel:hover { border-color: rgba(255,255,255,0.3); box-shadow: var(--glow); }
+
+        /* === الهيدر والتنقل === */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 25px; margin: 15px auto; width: 95%; max-width: 1200px;
+            position: sticky; top: 15px; z-index: 100;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px var(--neon-main); }
+        .logo i { color: var(--neon-main); animation: spinIcon 10s linear infinite; }
+        .nav-btn {
+            background: transparent; border: 1px solid var(--glass-border);
+            color: var(--text-main); width: 45px; height: 45px; border-radius: 12px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            font-size: 1.2rem; transition: var(--transition);
+        }
+        .nav-btn:hover { background: var(--neon-main); color: #000; border-color: var(--neon-main); transform: translateY(-3px) scale(1.05); }
+        .controls { display: flex; gap: 10px; }
+
+        @keyframes spinIcon { 100% { transform: rotate(360deg); } }
+
+        /* === القوائم (Tabs) === */
+        .tabs-container {
+            display: flex; justify-content: center; gap: 15px; margin: 30px auto; max-width: 600px;
+            padding: 0 15px;
+        }
+        .tab {
+            padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: 600;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            transition: var(--transition); flex: 1; text-align: center;
+            backdrop-filter: var(--blur-val);
+        }
+        .tab.active { background: var(--gradient); border-color: transparent; box-shadow: var(--glow); color: #fff; }
+
+        /* === المحتوى والبحث === */
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        .section { display: none; animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .section.active { display: block; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* شريط البحث المتحرك */
+        .input-group {
+            position: relative; display: flex; width: 100%; margin-bottom: 40px;
+            border-radius: 15px; background: rgba(0,0,0,0.5); padding: 5px;
+            border: 1px solid var(--glass-border); transition: var(--transition);
+        }
+        .input-group:focus-within { border-color: var(--neon-main); box-shadow: var(--glow); }
+        
+        .main-input {
+            flex: 1; background: transparent; border: none; padding: 18px 25px;
+            color: var(--text-main); font-size: 1.1rem; font-weight: 600;
+        }
+        .main-input::placeholder { color: rgba(255,255,255,0.4); }
+        
+        .action-btn {
+            background: var(--gradient); border: none; border-radius: 12px;
+            padding: 0 35px; color: #fff; font-size: 1.1rem; font-weight: 800;
+            cursor: pointer; transition: var(--transition); position: relative; overflow: hidden;
+        }
+        .action-btn:hover { transform: scale(0.98); box-shadow: 0 0 20px var(--neon-main); }
+        .action-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+        .action-btn:hover::after { left: 150%; transition: 0.7s; }
+
+        /* === النتائج والبطاقات === */
+        .grid-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card {
+            padding: 25px; display: flex; flex-direction: column; gap: 15px; position: relative;
+            overflow: hidden; word-break: break-word;
+        }
+        /* تأثير لمعان داخل البطاقة */
+        .card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            opacity: 0; transition: 0.5s; pointer-events: none;
+        }
+        .card:hover::before { opacity: 1; }
+        
+        .data-line { display: flex; flex-direction: column; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .data-title { color: var(--neon-main); font-size: 0.85rem; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+        .data-value { font-size: 1rem; font-weight: 600; }
+
+        /* أزرار التحميل والمشاهدة داخل البطاقات */
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .media-btn {
+            flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem;
+            transition: var(--transition); text-decoration: none; color: #fff;
+        }
+        .btn-dl { background: rgba(0, 255, 102, 0.2); border: 1px solid #00ff66; color: #00ff66; }
+        .btn-dl:hover { background: #00ff66; color: #000; box-shadow: 0 0 15px #00ff66; }
+        .btn-view { background: rgba(0, 229, 255, 0.2); border: 1px solid #00e5ff; color: #00e5ff; }
+        .btn-view:hover { background: #00e5ff; color: #000; box-shadow: 0 0 15px #00e5ff; }
+
+        /* === مشغل الميديا العائم (السينمائي) === */
+        #media-viewer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            z-index: 100000; display: flex; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: 0.4s ease;
+        }
+        #media-viewer.show { opacity: 1; visibility: visible; }
+        
+        .viewer-box {
+            position: relative; max-width: 90%; max-height: 85vh;
+            border-radius: 20px; z-index: 2; display: flex; justify-content: center; align-items: center;
+        }
+        /* إطار النيون المتحرك حول المشغل */
+        .viewer-box::before {
+            content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+            background: conic-gradient(from var(--angle), var(--neon-main), transparent, var(--neon-sub), transparent, var(--neon-main));
+            border-radius: 24px; z-index: -1;
+            animation: spinBorder 3s linear infinite;
+        }
+        @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        @keyframes spinBorder { to { --angle: 360deg; } }
+        
+        .viewer-content {
+            border-radius: 20px; overflow: hidden; background: #000;
+            max-width: 100%; max-height: 85vh; display: block; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .viewer-content img, .viewer-content video { width: auto; height: auto; max-width: 100%; max-height: 85vh; display: block; }
+        .close-viewer {
+            position: absolute; top: -50px; right: 0; color: #fff; font-size: 2rem; cursor: pointer;
+            transition: 0.3s; text-shadow: 0 0 10px red;
+        }
+        .close-viewer:hover { color: red; transform: scale(1.1); }
+
+        /* === التذييل والعداد والبيانات === */
+        footer { margin-top: 50px; padding: 20px; text-align: center; position: relative; }
+        .copyright { font-size: 0.85rem; color: rgba(255,255,255,0.6); display: flex; flex-direction: column; gap: 5px; }
+        .copyright a { color: var(--neon-main); text-decoration: none; font-weight: bold; font-family: 'Orbitron', sans-serif; }
+        
+        .stats-bar {
+            display: inline-flex; align-items: center; gap: 15px; margin-top: 20px;
+            padding: 10px 25px; border-radius: 30px; border: 1px solid var(--neon-sub);
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+        }
+        .stat-dot { width: 12px; height: 12px; border-radius: 50%; background: #00ff66; box-shadow: 0 0 10px #00ff66; animation: blink 1s infinite alternate; }
+        .stat-text { font-weight: bold; letter-spacing: 1px; color: #fff; }
+        .stat-num { color: var(--neon-main); font-size: 1.2rem; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--neon-main); }
+
+        @keyframes blink { 0% { opacity: 0.4; } 100% { opacity: 1; transform: scale(1.2); } }
+
+        /* === شاشات صغيرة === */
+        @media (max-width: 768px) {
+            .input-group { flex-direction: column; background: transparent; border: none; gap: 10px; }
+            .main-input { border: 1px solid var(--glass-border); border-radius: 12px; background: var(--glass-bg); }
+            .action-btn { padding: 15px; width: 100%; border-radius: 12px; }
+            header { flex-direction: column; gap: 15px; margin-top: 5px; }
+            .logo { font-size: 1.5rem; }
+            .orb { display: none; } /* تحسين الأداء للموبايل */
+        }
+    </style>
 </head>
-<body class="light-mode">
-    <header class="header" id="mainHeader">
-        <div class="logo">📁 Digital<span>Market</span></div>
-        <div class="header-actions">
-            <button class="cart-btn" onclick="window.location.href='cart.html'">
-                <span class="cart-icon"></span>
-                <span class="cart-count" id="cart-count">0</span>
-            </button>
-            <button class="mode-toggle" id="mode-toggle" aria-label="تبديل الوضع الليلي"></button>
+<body>
+
+    <div class="animated-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div id="loader">
+        <div class="roots-bg"></div>
+        <div class="loader-content">
+            <img src="https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?q=80&w=200&auto=format&fit=crop" alt="Logo" class="loader-img" id="siteLogo">
+            <div class="lightning-bar-container"><div class="lightning-bar"></div></div>
+            <h3 style="margin-top:20px; letter-spacing:3px; font-family:'Orbitron', sans-serif;">INITIALIZING...</h3>
+        </div>
+    </div>
+
+    <div id="media-viewer" onclick="closeMediaViewer(event)">
+        <div class="viewer-box">
+            <i class="fa-solid fa-xmark close-viewer" onclick="closeMediaViewer(event, true)"></i>
+            <div class="viewer-content" id="viewer-container">
+                </div>
+        </div>
+    </div>
+
+    <header class="glass-panel">
+        <div class="logo"><i class="fa-solid fa-bolt"></i> إيليا | ELIJAH</div>
+        <div class="controls">
+            <button class="nav-btn" onclick="cycleTheme()" title="تغيير المظهر"><i class="fa-solid fa-droplet"></i></button>
+            <button class="nav-btn" onclick="toggleLang()" title="اللغة"><i class="fa-solid fa-earth-americas"></i></button>
         </div>
     </header>
 
-    <main>
-        <!-- قسم البطل (Hero) مع إحصائيات حية -->
-        <section class="hero">
-            <h1>الملفات الرقمية الإبداعية <br> <span>بأفضل الأسعار</span></h1>
-            <p>أكثر من 500 قالب وكتاب إلكتروني وأداة رقمية جاهزة للتحميل الفوري</p>
-            <div class="live-stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="buyers-count" data-target="15234">0</span>
-                    <span class="stat-label">مشترٍ</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="sales-count" data-target="45890">0</span>
-                    <span class="stat-label">مبيعات</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="products-count" data-target="500">0</span>
-                    <span class="stat-label">منتج</span>
-                </div>
+    <div class="tabs-container">
+        <div class="tab active" onclick="switchTab('search', this)"><i class="fa-solid fa-radar"></i> بحث متقدم</div>
+        <div class="tab" onclick="switchTab('download', this)"><i class="fa-solid fa-cloud-arrow-down"></i> مركز التحميل</div>
+    </div>
+
+    <main class="container">
+        
+        <section id="search-section" class="section active">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="main-input" placeholder="اكتب استعلامك هنا (نص، اسم، ايدي)...">
+                <button class="action-btn" onclick="fetchData('search')"><i class="fa-solid fa-fingerprint"></i> فحص واستخراج</button>
             </div>
-            <button class="btn-primary" onclick="window.location.href='#products'">تصفح المنتجات</button>
+            <div id="search-results" class="grid-results"></div>
         </section>
 
-        <!-- شريط البحث الذكي مع الفلترة -->
-        <section class="search-section">
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="ابحث عن منتج..." class="search-input">
-                <div class="filter-options">
-                    <select id="typeFilter">
-                        <option value="all">جميع التصنيفات</option>
-                        <option value="ebook">كتب إلكترونية</option>
-                        <option value="code">أكواد برمجية</option>
-                        <option value="design">قوالب تصميم</option>
-                        <option value="audio">موسيقى</option>
-                    </select>
-                    <select id="priceFilter">
-                        <option value="all">جميع الأسعار</option>
-                        <option value="0-25">أقل من 25$</option>
-                        <option value="25-50">25$ - 50$</option>
-                        <option value="50-100">50$ - 100$</option>
-                        <option value="100+">أكثر من 100$</option>
-                    </select>
-                </div>
+        <section id="download-section" class="section">
+            <div class="input-group" style="direction: ltr;">
+                <input type="url" id="downloadInput" class="main-input" placeholder="https://..." style="text-align: left;">
+                <button class="action-btn" onclick="fetchData('download')"><i class="fa-solid fa-microchip"></i> تحليل الرابط</button>
             </div>
+            <div id="download-results" class="grid-results"></div>
         </section>
 
-        <!-- التصنيفات العائمة -->
-        <section class="categories-floating">
-            <h2>تصفح حسب التصنيف</h2>
-            <div class="category-floating-grid">
-                <div class="category-floating-item" data-category="ebook">
-                    <div class="floating-icon">📄</div>
-                    <span>كتب إلكترونية</span>
-                </div>
-                <div class="category-floating-item" data-category="code">
-                    <div class="floating-icon">{ }</div>
-                    <span>أكواد برمجية</span>
-                </div>
-                <div class="category-floating-item" data-category="design">
-                    <div class="floating-icon">🎨</div>
-                    <span>قوالب تصميم</span>
-                </div>
-                <div class="category-floating-item" data-category="audio">
-                    <div class="floating-icon">🎵</div>
-                    <span>موسيقى</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- المنتجات الأكثر رواجاً -->
-        <section class="trending-products">
-            <h2>الأكثر رواجاً 🔥</h2>
-            <div class="product-grid" id="trending-grid">
-                <!-- سيتم تعبئتها بواسطة JavaScript -->
-            </div>
-        </section>
-
-        <!-- جميع المنتجات -->
-        <section class="products" id="products">
-            <h2>جميع المنتجات</h2>
-            <div class="product-grid" id="product-grid">
-                <!-- يتم تعبئتها بواسطة JavaScript -->
-            </div>
-        </section>
     </main>
 
     <footer>
-        <p>© 2025 سوق الملفات الرقمية - جميع الحقوق محفوظة</p>
+        <div class="copyright">
+            <span>حقوق النشر &copy; <span id="year"></span> محفوظة.</span>
+            <span>بواسطة المبرمج <a href="https://t.me/swc_t" target="_blank">إيليا 💀</a></span>
+        </div>
+        
+        <div class="stats-bar glass-panel">
+            <div class="stat-dot"></div>
+            <span class="stat-text">إجمالي الزوار النشطين:</span>
+            <span class="stat-num" id="live-counter">0</span>
+        </div>
     </footer>
 
-    <script src="data.js"></script>
-    <script src="app.js"></script>
     <script>
-        // دوال إضافية للصفحة الرئيسية (عدادات، فلترة، عرض المنتجات)
-        document.addEventListener('DOMContentLoaded', function() {
-            // تشغيل العدادات المتحركة
-            animateStats();
-            
-            // عرض المنتجات في القسم الرئيسي
-            displayProductsWithFilters();
-            
-            // عرض المنتجات الأكثر رواجاً (بناءً على المشاهدات الوهمية)
-            displayTrendingProducts();
-            
-            // تحديث عداد السلة
-            updateCartCount();
-            
-            // إضافة مستمعي الأحداث للفلترة
-            document.getElementById('searchInput').addEventListener('input', filterProducts);
-            document.getElementById('typeFilter').addEventListener('change', filterProducts);
-            document.getElementById('priceFilter').addEventListener('change', filterProducts);
-            
-            // فلترة عند النقر على تصنيف عائم
-            document.querySelectorAll('.category-floating-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const category = this.dataset.category;
-                    document.getElementById('typeFilter').value = category;
-                    filterProducts();
-                });
-            });
+        /* 1. نظام التحميل الأولي */
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    initCounter(); // تشغيل العداد بعد اختفاء شاشة التحميل
+                }, 600);
+            }, 2000);
+            document.getElementById('year').innerText = new Date().getFullYear();
         });
 
-        // عدادات متحركة
-        function animateStats() {
-            const counters = document.querySelectorAll('.stat-number');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-target'));
-                let count = 0;
-                const increment = target / 100; // سرعة التحديث
-                const updateCounter = () => {
-                    if (count < target) {
-                        count += increment;
-                        counter.innerText = Math.ceil(count).toLocaleString();
-                        setTimeout(updateCounter, 10);
-                    } else {
-                        counter.innerText = target.toLocaleString();
-                    }
-                };
-                updateCounter();
-            });
+        /* 2. نظام الثيمات المحدث */
+        let currTheme = 1;
+        function cycleTheme() {
+            currTheme = currTheme >= 3 ? 1 : currTheme + 1;
+            document.documentElement.setAttribute('data-theme', currTheme);
         }
 
-        // عرض المنتجات مع تطبيق الفلاتر
-        function displayProductsWithFilters() {
-            const products = JSON.parse(localStorage.getItem('products')) || [];
-            const grid = document.getElementById('product-grid');
-            renderProducts(products, grid);
+        /* 3. تبديل الصفحات (Tabs) */
+        function switchTab(tab, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + '-section').classList.add('active');
+            el.classList.add('active');
         }
 
-        function renderProducts(products, grid) {
-            grid.innerHTML = '';
-            if (products.length === 0) {
-                grid.innerHTML = '<p class="no-results">لا توجد منتجات مطابقة</p>';
+        /* 4. العداد الحقيقي التلقائي (محلي + محاكاة لحين ربط الـ API) */
+        function initCounter() {
+            // ملاحظة للمبرمج: بما أن الموقع HTML ثابت، حفظ الرقم عالمياً يحتاج قاعدة بيانات.
+            // هنا نستخدم localStorage لتسجيل عدد زيارات هذا الجهاز، ونضيف رقم أساسي ليظهر بشكل ضخم.
+            let baseCount = localStorage.getItem('elijah_total_visits');
+            if(!baseCount) {
+                // إنشاء رقم عشوائي كقاعدة في أول زيارة
+                baseCount = Math.floor(Math.random() * (50000 - 10000) + 10000); 
+            } else {
+                baseCount = parseInt(baseCount) + 1; // زيادة حقيقية عند كل تحديث للصفحة
+            }
+            localStorage.setItem('elijah_total_visits', baseCount);
+            
+            const counterEl = document.getElementById('live-counter');
+            counterEl.innerText = parseInt(baseCount).toLocaleString();
+
+            // تحديث حي بسيط لمحاكاة الضغط المستمر
+            setInterval(() => {
+                if(Math.random() > 0.5) {
+                    baseCount = parseInt(baseCount) + Math.floor(Math.random() * 3);
+                    counterEl.innerText = baseCount.toLocaleString();
+                    localStorage.setItem('elijah_total_visits', baseCount);
+                }
+            }, 3000);
+
+            // دالة جاهزة للاتصال بقاعدة بياناتك المستقبلية (غير مفعلة حالياً)
+            /*
+            fetch('https://sii3.top/api/counter.php?action=hit')
+               .then(res => res.json())
+               .then(data => counterEl.innerText = data.total);
+            */
+        }
+
+        /* 5. التحقق من الروابط للصور والفيديوهات */
+        function checkMediaType(url) {
+            const ext = url.split('?')[0].split('.').pop().toLowerCase();
+            if(['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
+            if(['mp4', 'webm', 'ogg'].includes(ext)) return 'video';
+            if(['mp3', 'wav'].includes(ext)) return 'audio';
+            return 'other';
+        }
+
+        /* 6. مشغل الميديا العائم (السينمائي) */
+        const viewer = document.getElementById('media-viewer');
+        const vContainer = document.getElementById('viewer-container');
+
+        function openMediaViewer(url, type, e) {
+            e.preventDefault(); // منع فتح الرابط في صفحة جديدة
+            vContainer.innerHTML = '';
+            
+            if(type === 'image') {
+                vContainer.innerHTML = `<img src="${url}" alt="Preview">`;
+            } else if(type === 'video') {
+                vContainer.innerHTML = `<video src="${url}" controls autoplay></video>`;
+            } else if(type === 'audio') {
+                vContainer.innerHTML = `<audio src="${url}" controls autoplay style="margin:20px;"></audio>`;
+            }
+            
+            viewer.classList.add('show');
+        }
+
+        function closeMediaViewer(e, force = false) {
+            // إغلاق إذا تم الضغط على الخلفية السوداء (المعرف media-viewer) أو زر الإغلاق
+            if (force || e.target.id === 'media-viewer') {
+                viewer.classList.remove('show');
+                // إيقاف الصوت/الفيديو فوراً عند الإغلاق
+                vContainer.innerHTML = ''; 
+            }
+        }
+
+        /* 7. المحلل الذكي وبناء البطاقات */
+        function renderCards(data, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            if(!data || data.length === 0 || Object.keys(data).length === 0) {
+                container.innerHTML = `<h3 style="color:#ff003c; text-align:center; width:100%;">لا توجد بيانات / Error</h3>`;
                 return;
             }
-            products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.setAttribute('data-id', product.id);
-                card.innerHTML = `
-                    <h3>${product.name}</h3>
-                    <p>${product.description.substring(0, 60)}...</p>
-                    <div class="product-price">${product.price} $</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart" data-id="${product.id}">➕ أضف للسلة</button>
-                        <button class="view-details" onclick="window.location.href='product.html?id=${product.id}'">🔍 التفاصيل</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-            
-            // إعادة ربط أحداث أزرار الإضافة
-            document.querySelectorAll('.add-to-cart').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = parseInt(e.target.dataset.id);
-                    if (typeof addToCart === 'function') {
-                        addToCart(id);
-                    } else {
-                        alert('تمت الإضافة (محاكاة)');
+
+            if(typeof data === 'string') {
+                container.innerHTML = `<div class="card glass-panel"><div class="data-value">${data}</div></div>`;
+                return;
+            }
+
+            const buildHTML = (obj) => {
+                let html = '<div class="card glass-panel">';
+                let links = [];
+
+                if(typeof obj === 'object') {
+                    for(let key in obj) {
+                        let val = obj[key];
+                        if(typeof val === 'object') val = JSON.stringify(val);
+                        
+                        if(typeof val === 'string' && val.startsWith('http')) {
+                            links.push(val);
+                            html += `<div class="data-line"><span class="data-title">${key}</span><span class="data-value" style="color:gray; font-size:12px;">[رابط وسائط]</span></div>`;
+                        } else {
+                            html += `<div class="data-line"><span class="data-title">${key}</span><span class="data-value">${val}</span></div>`;
+                        }
                     }
-                });
-            });
-        }
-
-        // فلترة المنتجات
-        function filterProducts() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const type = document.getElementById('typeFilter').value;
-            const priceRange = document.getElementById('priceFilter').value;
-            
-            let products = JSON.parse(localStorage.getItem('products')) || [];
-            
-            // فلترة حسب البحث
-            if (searchTerm) {
-                products = products.filter(p => p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm));
-            }
-            
-            // فلترة حسب التصنيف
-            if (type !== 'all') {
-                products = products.filter(p => p.type === type);
-            }
-            
-            // فلترة حسب السعر
-            if (priceRange !== 'all') {
-                products = products.filter(p => {
-                    if (priceRange === '0-25') return p.price < 25;
-                    if (priceRange === '25-50') return p.price >= 25 && p.price <= 50;
-                    if (priceRange === '50-100') return p.price > 50 && p.price <= 100;
-                    if (priceRange === '100+') return p.price > 100;
-                });
-            }
-            
-            const grid = document.getElementById('product-grid');
-            renderProducts(products, grid);
-        }
-
-        // عرض المنتجات الأكثر رواجاً (بناءً على خاصية وهمية views)
-        function displayTrendingProducts() {
-            let products = JSON.parse(localStorage.getItem('products')) || [];
-            // إضافة خاصية مشاهدات وهمية لكل منتج إذا لم تكن موجودة
-            products = products.map(p => {
-                if (!p.views) {
-                    p.views = Math.floor(Math.random() * 1000) + 100;
+                } else {
+                    html += `<div class="data-line"><span class="data-value">${obj}</span></div>`;
                 }
-                return p;
-            });
-            // ترتيب تنازلي حسب المشاهدات
-            const trending = [...products].sort((a, b) => b.views - a.views).slice(0, 3);
-            const trendingGrid = document.getElementById('trending-grid');
-            renderProducts(trending, trendingGrid);
+
+                // إضافة أزرار الميديا الذكية إذا وُجدت روابط
+                if(links.length > 0) {
+                    html += `<div class="btn-group">`;
+                    links.forEach(url => {
+                        const type = checkMediaType(url);
+                        if(type !== 'other') {
+                            html += `<button class="media-btn btn-view" onclick="openMediaViewer('${url}', '${type}', event)"><i class="fa-solid fa-eye"></i> عرض مباشر</button>`;
+                        }
+                        // زر التحميل المباشر للرابط
+                        html += `<a href="${url}" target="_blank" download class="media-btn btn-dl"><i class="fa-solid fa-download"></i> تحميل</a>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                html += '</div>';
+                return html;
+            };
+
+            if(Array.isArray(data)) {
+                data.forEach(item => container.innerHTML += buildHTML(item));
+            } else {
+                container.innerHTML = buildHTML(data);
+            }
+        }
+
+        /* 8. نظام الاتصال بالسيرفر (API) */
+        async function fetchData(type) {
+            const isSearch = type === 'search';
+            const inputVal = document.getElementById(isSearch ? 'searchInput' : 'downloadInput').value.trim();
+            const containerId = isSearch ? 'search-results' : 'download-results';
+            const container = document.getElementById(containerId);
+
+            if(!inputVal) return;
+
+            // تأثير التحميل
+            container.innerHTML = `<div style="text-align:center; width:100%;"><i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--neon-main)"></i></div>`;
+
+            let fetchUrl = '';
+            let options = {};
+
+            if(isSearch) {
+                fetchUrl = `https://sii3.top/api/search.php?q=${encodeURIComponent(inputVal)}`;
+                options = { method: 'GET' };
+            } else {
+                fetchUrl = `https://sii3.top/api/download.php`;
+                options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `url=${encodeURIComponent(inputVal)}`
+                };
+            }
+
+            try {
+                const response = await fetch(fetchUrl, options);
+                
+                let data;
+                const contentType = response.headers.get("content-type") || "";
+                if (contentType.includes("application/json")) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    try { data = JSON.parse(text); } catch(e) { data = text; }
+                }
+
+                renderCards(data, containerId);
+
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = `<div class="card glass-panel" style="border-color:#ff003c; text-align:center;"><i class="fa-solid fa-triangle-exclamation fa-2x"></i><br>فشل الاتصال بـ sii3.top<br><small style="opacity:0.5">تأكد من تفعيل CORS في السيرفر</small></div>`;
+            }
+        }
+
+        /* 9. الترجمة السريعة */
+        let isAr = true;
+        function toggleLang() {
+            isAr = !isAr;
+            document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+            document.getElementById('searchInput').placeholder = isAr ? "اكتب استعلامك هنا (نص، اسم، ايدي)..." : "Type your query here...";
+            // يمكنك إضافة مصفوفة ترجمة كاملة هنا كما في النسخة السابقة إذا أردت
         }
     </script>
 </body>
